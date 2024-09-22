@@ -1,14 +1,13 @@
 # systemd_service/transcription_app.service
 [Unit]
-Description=Team6 Transcription Flask App
+Description=Transcription Flask App
 After=network.target
 
 [Service]
-User=transcript  # Remplacez par l'utilisateur approprié
-Group=www-data
-WorkingDirectory=/home/transcript/git/team6-transcription
-Environment="PATH=/home/transcript/git/team6-transcription/transcription_env/bin"
-ExecStart=/home/transcript/git/team6-transcription/transcription_env/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 app:app
+User=transcript
+WorkingDirectory=/home/transcript/git/transcript/
+Environment="PATH=/home/transcript/git/transcript/transcription_env/bin"
+ExecStart=/home/transcript/git/transcript/transcription_env/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 app:app
 
 Restart=always
 
