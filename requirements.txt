@@ -1,0 +1,8 @@
+Flask
+Flask-HTTPAuth
+werkzeug
+pyaudio
+moviepy
+whisper
+transformers
+torch
