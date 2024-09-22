@@ -5,7 +5,7 @@ import os
 import subprocess
 
 # Charger le modèle Whisper une seule fois au démarrage
-model = whisper.load_model("tiny")  # Utilisez "tiny" pour de meilleures performances sur Raspberry Pi
+model = whisper.load_model("small")  # Utilisez "tiny" pour de meilleures performances sur Raspberry Pi
 
 def convert_audio(file_path, target_path, samp_rate=16000):
     """
