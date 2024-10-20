@@ -13,7 +13,7 @@
 Clonez le dépôt Git sur votre machine locale et naviguez dans le répertoire du projet :
 
 ```bash
-git clone <URL_DU_DEPOT>
+git clone https://github.com/Swissgithub/transcript.git
 cd transcript
 ```
 
