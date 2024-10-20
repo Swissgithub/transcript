@@ -13,10 +13,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 
 # Configuration des utilisateurs pour l'authentification
-auth = HTTPBasicAuth()
-users = {
-    "admin": generate_password_hash("password123")  # Remplacez par vos identifiants sécurisés
-}
+#auth = HTTPBasicAuth()
+#users = {
+#    "admin": generate_password_hash("password123")  # Remplacez par vos identifiants sécurisés
+#}
 
 @auth.verify_password
 def verify_password(username, password):
