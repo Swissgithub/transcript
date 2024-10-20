@@ -6,6 +6,10 @@
 - Assurez-vous que `pip` est installé et à jour.
 - Installez `ffmpeg` sur votre système pour le traitement audio/vidéo.
 
+```bash
+sudo apt-get install portaudio19-dev python3 ffmpeg
+```
+
 ## Étapes d'Installation
 
 ### 1. Cloner le Dépôt
