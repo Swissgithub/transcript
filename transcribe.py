@@ -4,21 +4,8 @@ from moviepy.editor import VideoFileClip
 import os
 import subprocess
 
-def download_model_if_not_exists(model_name="small"):
-    """
-    Télécharge le modèle Whisper spécifié s'il n'existe pas déjà dans le cache local.
-    """
-    try:
-        # Tente de charger le modèle pour vérifier s'il est déjà téléchargé
-        whisper.load_model(model_name)
-        print(f"Modèle {model_name} déjà présent.")
-    except RuntimeError:
-        print(f"Téléchargement du modèle {model_name}...")
-        whisper.load_model(model_name)
-
-# Charger le modèle Whisper
-download_model_if_not_exists()
-model = whisper.load_model("small")
+# Charger le modèle Whisper une seule fois au démarrage
+model = whisper.load_model("small")  # Utilisez "tiny" pour de meilleures performances sur Raspberry Pi
 
 def convert_audio(file_path, target_path, samp_rate=16000):
     """

@@ -57,16 +57,12 @@ def upload_file():
     """
     Gère le téléchargement de fichiers audio et vidéo, les transcrit, et affiche le résultat.
     """
-    print("Requête d'upload reçue")
     if 'file' not in request.files:
-        print("Aucun fichier dans la requête")
         return redirect(url_for('index'))
     file = request.files['file']
     if file.filename == '':
-        print("Nom de fichier vide")
         return redirect(url_for('index'))
     if file and allowed_file(file.filename):
-        print(f"Fichier accepté : {file.filename}")
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
@@ -97,7 +93,6 @@ def upload_file():
         
         return render_template('result.html', transcription=transcription)
     else:
-        print(f"Fichier non autorisé ou problème de format : {file.filename}")
         return redirect(url_for('index'))
 
 @app.route('/start_recording', methods=['POST'])
