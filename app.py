@@ -97,7 +97,7 @@ def upload_file():
         
         return render_template('result.html', transcription=transcription)
     else:
-        print("Fichier non autorisé ou problème de format")
+        print(f"Fichier non autorisé ou problème de format : {file.filename}")
         return redirect(url_for('index'))
 
 @app.route('/start_recording', methods=['POST'])
