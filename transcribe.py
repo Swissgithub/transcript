@@ -4,8 +4,9 @@ from moviepy.editor import VideoFileClip
 import os
 import subprocess
 
-# Charger le modèle Whisper une seule fois au démarrage
-model = whisper.load_model("small")  # Utilisez "tiny" pour de meilleures performances sur Raspberry Pi
+# Charger le modèle Whisper à partir du répertoire local
+model_path = "models/small"
+model = whisper.load_model(model_path)
 
 def convert_audio(file_path, target_path, samp_rate=16000):
     """
