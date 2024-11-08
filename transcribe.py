@@ -4,7 +4,21 @@ from moviepy.editor import VideoFileClip
 import os
 import subprocess
 
+def download_model_if_not_exists(model_name="small", save_dir="models"):
+    """
+    Télécharge le modèle Whisper spécifié s'il n'existe pas déjà dans le répertoire local.
+    """
+    model_path = os.path.join(save_dir, model_name)
+    if not os.path.exists(model_path):
+        print(f"Téléchargement du modèle {model_name}...")
+        model = whisper.load_model(model_name)
+        os.makedirs(save_dir, exist_ok=True)
+        model.save_pretrained(save_dir)
+    else:
+        print(f"Modèle {model_name} déjà présent.")
+
 # Charger le modèle Whisper à partir du répertoire local
+download_model_if_not_exists()
 model_path = "models/small"
 model = whisper.load_model(model_path)
 
