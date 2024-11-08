@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 import os
@@ -7,21 +6,7 @@ import uuid
 from transcribe import transcribe_audio, extract_audio_from_video
 from recorder import AudioRecorder
 
-from flask_httpauth import HTTPBasicAuth
-from werkzeug.security import generate_password_hash, check_password_hash
-
 app = Flask(__name__)
-
-# Configuration des utilisateurs pour l'authentification
-#auth = HTTPBasicAuth()
-#users = {
-#    "admin": generate_password_hash("password123")  # Remplacez par vos identifiants sécurisés
-#}
-
-@auth.verify_password
-def verify_password(username, password):
-    if username in users and check_password_hash(users.get(username), password):
-        return username
 
 # Configuration des dossiers
 UPLOAD_FOLDER = 'uploads'
@@ -61,7 +46,6 @@ def save_transcription(text, filename=None):
 recorder = AudioRecorder(output_path=os.path.join(UPLOAD_FOLDER, 'live_record.wav'))
 
 @app.route('/')
-@auth.login_required
 def index():
     """
     Route principale affichant le formulaire d'upload et les contrôles d'enregistrement.
@@ -69,17 +53,20 @@ def index():
     return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
-@auth.login_required
 def upload_file():
     """
     Gère le téléchargement de fichiers audio et vidéo, les transcrit, et affiche le résultat.
     """
+    print("Requête d'upload reçue")
     if 'file' not in request.files:
+        print("Aucun fichier dans la requête")
         return redirect(url_for('index'))
     file = request.files['file']
     if file.filename == '':
+        print("Nom de fichier vide")
         return redirect(url_for('index'))
     if file and allowed_file(file.filename):
+        print(f"Fichier accepté : {file.filename}")
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
@@ -110,10 +97,10 @@ def upload_file():
         
         return render_template('result.html', transcription=transcription)
     else:
+        print(f"Fichier non autorisé ou problème de format : {file.filename}")
         return redirect(url_for('index'))
 
 @app.route('/start_recording', methods=['POST'])
-@auth.login_required
 def start_recording():
     """
     Démarre l'enregistrement audio en direct.
@@ -125,7 +112,6 @@ def start_recording():
         return "Enregistrement déjà en cours."
 
 @app.route('/stop_recording', methods=['POST'])
-@auth.login_required
 def stop_recording():
     """
     Arrête l'enregistrement audio en direct et affiche la transcription.
@@ -148,7 +134,6 @@ def stop_recording():
         return "Aucun enregistrement en cours."
 
 @app.route('/uploads/<filename>')
-@auth.login_required
 def uploaded_file(filename):
     """
     Permet de télécharger les fichiers enregistrés ou transcrits.
@@ -173,4 +158,3 @@ if __name__ == "__main__":
     finally:
         # S'assurer que PyAudio est correctement terminé lors de l'arrêt
         recorder.terminate()
-
