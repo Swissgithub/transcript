@@ -14,7 +14,7 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024  # Limite à 200MB
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # Limite à 100MB
 
 # Paramètres d'upload
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'mp4', 'mov', 'avi'}
@@ -54,68 +54,51 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-@app.route('/upload', methods=['POST'])
-def upload_file():
+    """
+    Gère le téléchargement de fichiers audio et vidéo, les transcrit, et affiche le résultat.
+    """
     print("Requête d'upload reçue")
-    
-    # Vérifie si un fichier est bien inclus dans la requête
     if 'file' not in request.files:
-        print("Erreur: Aucun fichier trouvé dans la requête.")
-        return redirect(url_for('index')), 400  # Retourne une erreur 400 explicite
-    
+        print("Aucun fichier dans la requête")
+        return redirect(url_for('index'))
     file = request.files['file']
-    print(f"Fichier reçu: {file}")  # Affiche des informations sur l'objet fichier
-    
-    # Vérifie si le nom de fichier est vide
     if file.filename == '':
-        print("Erreur: Le nom du fichier est vide.")
-        return redirect(url_for('index')), 400
-    
-    # Vérifie si le fichier a une extension autorisée
+        print("Nom de fichier vide")
+        return redirect(url_for('index'))
     if file and allowed_file(file.filename):
+        print(f"Fichier accepté : {file.filename}")
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        print(f"Fichier accepté: {filename}")  # Affiche le nom du fichier accepté
-        try:
-            file.save(file_path)  # Tente de sauvegarder le fichier
-            print(f"Fichier sauvegardé à {file_path}")
-        except Exception as e:
-            print(f"Erreur lors de la sauvegarde du fichier: {e}")
-            return f"Erreur de sauvegarde du fichier: {e}", 500  # Retourne une erreur 500 explicite
+        file.save(file_path)
 
-        # Traite le fichier selon son extension
         file_extension = os.path.splitext(filename)[1].lower()
-        try:
-            if file_extension in ['.mp4', '.mov', '.avi']:
-                print("Début de l'extraction de l'audio depuis la vidéo")
+        if file_extension in ['.mp4', '.mov', '.avi']:
+            try:
+                # Extraire l'audio
                 audio_file = os.path.join(app.config['UPLOAD_FOLDER'], 'extracted_audio.wav')
                 extract_audio_from_video(file_path, audio_file)
                 transcription = transcribe_audio(audio_file)
+                # Supprimer l'audio extrait après transcription
                 os.remove(audio_file)
+                # Supprimer le fichier vidéo original après transcription (optionnel)
                 os.remove(file_path)
-            else:
-                print("Début de la transcription de l'audio")
+            except Exception as e:
+                transcription = f"Erreur lors de la transcription : {e}"
+        else:
+            try:
                 transcription = transcribe_audio(file_path)
+                # Supprimer le fichier audio original après transcription (optionnel)
                 os.remove(file_path)
-            print("Transcription réussie")
-        except Exception as e:
-            transcription = f"Erreur lors de la transcription : {e}"
-            print(transcription)
+            except Exception as e:
+                transcription = f"Erreur lors de la transcription : {e}"
         
-        # Sauvegarde la transcription dans un fichier texte
-        try:
-            transcription_file = save_transcription(transcription)
-            print(f"Transcription sauvegardée dans le fichier {transcription_file}")
-        except Exception as e:
-            print(f"Erreur lors de la sauvegarde de la transcription : {e}")
-            return f"Erreur de sauvegarde de la transcription: {e}", 500
-
+        # Sauvegarder la transcription dans un fichier
+        transcription_file = save_transcription(transcription)
+        
         return render_template('result.html', transcription=transcription)
     else:
         print(f"Fichier non autorisé ou problème de format : {file.filename}")
-        return redirect(url_for('index')), 400
-
+        return redirect(url_for('index'))
 
 @app.route('/start_recording', methods=['POST'])
 def start_recording():
@@ -166,7 +149,7 @@ def health():
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
-    return "Fichier trop volumineux. La taille maximale autorisée est de 200MB.", 413
+    return "Fichier trop volumineux. La taille maximale autorisée est de 100MB.", 413
 
 if __name__ == "__main__":
     try:
