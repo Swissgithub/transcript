@@ -153,8 +153,8 @@ def request_entity_too_large(error):
 
 if __name__ == "__main__":
     try:
-        # Exécuter l'application Flask
-        app.run(host='0.0.0.0', port=5000, debug=False)
+        # Exécuter l'application Flask avec le mode debug activé
+        app.run(host='0.0.0.0', port=5000, debug=True)
     finally:
         # S'assurer que PyAudio est correctement terminé lors de l'arrêt
         recorder.terminate()
