@@ -14,7 +14,7 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # Limite à 100MB
+app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024  # Limite à 200MB
 
 # Paramètres d'upload
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'mp4', 'mov', 'avi'}
@@ -149,7 +149,7 @@ def health():
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
-    return "Fichier trop volumineux. La taille maximale autorisée est de 100MB.", 413
+    return "Fichier trop volumineux. La taille maximale autorisée est de 200MB.", 413
 
 if __name__ == "__main__":
     try:
