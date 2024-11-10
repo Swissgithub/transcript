@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 import os
 import uuid
@@ -107,9 +107,9 @@ def start_recording():
     """
     if not recorder.is_recording:
         recorder.start_recording()
-        return redirect(url_for('index'))
+        return jsonify({"status": "recording_started"})
     else:
-        return "Enregistrement déjà en cours."
+        return jsonify({"status": "already_recording"})
 
 @app.route('/stop_recording', methods=['POST'])
 def stop_recording():
@@ -129,9 +129,9 @@ def stop_recording():
         # Sauvegarder la transcription dans un fichier
         transcription_file = save_transcription(transcription)
         
-        return render_template('result.html', transcription=transcription)
+        return jsonify({"status": "recording_stopped", "transcription": transcription})
     else:
-        return "Aucun enregistrement en cours."
+        return jsonify({"status": "no_recording"})
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
