@@ -1,7 +1,7 @@
 # systemd_service/transcription_app.service
 [Unit]
 Description=Transcription Flask App
-After=network.target
+After=network.target sound.target
 
 [Service]
 User=transcript
