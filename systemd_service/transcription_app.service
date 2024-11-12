@@ -5,9 +5,9 @@ After=network.target sound.target
 
 [Service]
 User=transcript
-WorkingDirectory=/home/transcript/git/transcript/
-Environment="PATH=/home/transcript/git/transcript/transcription_env/bin"
-ExecStart=/home/transcript/git/transcript/transcription_env/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 app:app
+WorkingDirectory=/opt/transcript/
+Environment="PATH=/opt/transcript/venv/bin"
+ExecStart=/opt/transcript/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:5000 app:app
 
 Restart=always
 
