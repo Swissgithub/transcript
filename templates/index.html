@@ -110,7 +110,7 @@
 
         <div id="connection-status">
             <div id="status-dot" class="status-dot"></div>
-            <span id="status-text">Checking connection...</span>
+            <span id="status-text">Checking server connection...</span>
         </div>
 
         <div class="section card">
@@ -182,25 +182,30 @@
                 });
         }
 
-        function updateConnectionStatus() {
+        function updateServerConnectionStatus() {
             const statusDot = document.getElementById('status-dot');
             const statusText = document.getElementById('status-text');
-            fetch('https://www.google.com', { method: 'HEAD', mode: 'no-cors' })
-                .then(() => {
-                    statusDot.classList.remove('disconnected');
-                    statusDot.classList.add('connected');
-                    statusText.textContent = "Connected to internet";
+            fetch('/check_internet')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.internet_access) {
+                        statusDot.classList.remove('disconnected');
+                        statusDot.classList.add('connected');
+                        statusText.textContent = "Server connected to internet";
+                    } else {
+                        statusDot.classList.remove('connected');
+                        statusDot.classList.add('disconnected');
+                        statusText.textContent = "Server not connected to internet";
+                    }
                 })
                 .catch(() => {
                     statusDot.classList.remove('connected');
                     statusDot.classList.add('disconnected');
-                    statusText.textContent = "No internet connection";
+                    statusText.textContent = "Error checking server connection";
                 });
         }
 
-        window.addEventListener('load', updateConnectionStatus);
-        window.addEventListener('online', updateConnectionStatus);
-        window.addEventListener('offline', updateConnectionStatus);
+        window.addEventListener('load', updateServerConnectionStatus);
     </script>
 </body>
 </html>

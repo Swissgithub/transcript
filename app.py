@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, send_from_
 from werkzeug.utils import secure_filename
 import os
 import uuid
+import requests
 
 from transcribe import transcribe_audio, extract_audio_from_video
 from recorder import AudioRecorder
@@ -146,6 +147,17 @@ def health():
     Route de vérification de santé de l'application.
     """
     return "L'application fonctionne correctement."
+
+@app.route('/check_internet')
+def check_internet():
+    """
+    Vérifie si le serveur a accès à Internet.
+    """
+    try:
+        requests.get('https://www.google.com', timeout=5)
+        return jsonify({"internet_access": True})
+    except requests.ConnectionError:
+        return jsonify({"internet_access": False})
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
