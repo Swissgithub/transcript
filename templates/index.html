@@ -185,15 +185,17 @@
         function updateConnectionStatus() {
             const statusDot = document.getElementById('status-dot');
             const statusText = document.getElementById('status-text');
-            if (navigator.onLine) {
-                statusDot.classList.remove('disconnected');
-                statusDot.classList.add('connected');
-                statusText.textContent = "Connected to internet";
-            } else {
-                statusDot.classList.remove('connected');
-                statusDot.classList.add('disconnected');
-                statusText.textContent = "No internet connection";
-            }
+            fetch('https://www.google.com', { method: 'HEAD', mode: 'no-cors' })
+                .then(() => {
+                    statusDot.classList.remove('disconnected');
+                    statusDot.classList.add('connected');
+                    statusText.textContent = "Connected to internet";
+                })
+                .catch(() => {
+                    statusDot.classList.remove('connected');
+                    statusDot.classList.add('disconnected');
+                    statusText.textContent = "No internet connection";
+                });
         }
 
         window.addEventListener('load', updateConnectionStatus);
