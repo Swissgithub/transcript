@@ -72,6 +72,15 @@
         .btn-secondary:hover {
             background-color: #5a6268;
         }
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -93,55 +102,42 @@
         <div class="section card">
             <div class="card-body">
                 <h2 class="card-title">Enregistrer un audio en direct</h2>
-                <button id="recordButton" class="btn btn-success" onclick="toggleRecording(event)">Démarrer l'enregistrement</button>
-                <button id="stopButton" class="btn btn-warning" onclick="toggleStop(event)" style="display: none;">Stop l'enregistrement</button>
+                <button id="recordButton" class="btn btn-success" onclick="startRecording(event)">Démarrer l'enregistrement</button>
+                <button id="stopButton" class="btn btn-danger" onclick="stopRecording(event)" disabled>Stop l'enregistrement</button>
+                <div id="message"></div>
             </div>
         </div>
     </div>
     <script>
-        let isRecording = false;
-        let isStopped = false;
-
-        function toggleRecording(event) {
+        function startRecording(event) {
             event.preventDefault(); // Empêche le rechargement de la page
             const recordButton = document.getElementById('recordButton');
             const stopButton = document.getElementById('stopButton');
-            const url = isRecording ? '/stop_recording' : '/start_recording';
-            fetch(url, { method: 'POST' })
+            const message = document.getElementById('message');
+            fetch('/start_recording', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
-                    if (isRecording) {
-                        recordButton.textContent = 'Démarrer l\'enregistrement';
-                        recordButton.classList.remove('btn-danger');
-                        recordButton.classList.add('btn-success');
-                        stopButton.style.display = 'none';
-                    } else {
-                        recordButton.textContent = 'Arrêter l\'enregistrement';
-                        recordButton.classList.remove('btn-success');
-                        recordButton.classList.add('btn-danger');
-                        stopButton.style.display = 'inline-block';
-                    }
-                    isRecording = !isRecording;
+                    recordButton.disabled = true;
+                    stopButton.disabled = false;
+                    message.textContent = "Enregistrement en cours...";
                 });
         }
 
-        function toggleStop(event) {
+        function stopRecording(event) {
             event.preventDefault(); // Empêche le rechargement de la page
+            const recordButton = document.getElementById('recordButton');
             const stopButton = document.getElementById('stopButton');
-            const url = isStopped ? '/resume_recording' : '/stop_recording';
-            fetch(url, { method: 'POST' })
+            const message = document.getElementById('message');
+            fetch('/stop_recording', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
-                    if (isStopped) {
-                        stopButton.textContent = 'Stop l\'enregistrement';
-                        stopButton.classList.remove('btn-secondary');
-                        stopButton.classList.add('btn-warning');
+                    recordButton.disabled = false;
+                    stopButton.disabled = true;
+                    if (data.status === "recording_stopped") {
+                        message.textContent = "Enregistrement arrêté. Transcription créée.";
                     } else {
-                        stopButton.textContent = 'Reprendre l\'enregistrement';
-                        stopButton.classList.remove('btn-warning');
-                        stopButton.classList.add('btn-secondary');
+                        message.textContent = "Aucun enregistrement en cours.";
                     }
-                    isStopped = !isStopped;
                 });
         }
     </script>
