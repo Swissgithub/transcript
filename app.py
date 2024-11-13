@@ -61,11 +61,11 @@ def upload_file():
     print("Requête d'upload reçue")
     if 'file' not in request.files:
         print("Aucun fichier dans la requête")
-        return redirect(url_for('index'))
+        return jsonify({"error": "Aucun fichier dans la requête"}), 400
     file = request.files['file']
     if file.filename == '':
         print("Nom de fichier vide")
-        return redirect(url_for('index'))
+        return jsonify({"error": "Nom de fichier vide"}), 400
     if file and allowed_file(file.filename):
         print(f"Fichier accepté : {file.filename}")
         filename = secure_filename(file.filename)
@@ -96,10 +96,10 @@ def upload_file():
         # Sauvegarder la transcription dans un fichier
         transcription_file = save_transcription(transcription)
         
-        return render_template('result.html', transcription=transcription)
+        return jsonify({"transcription": transcription})
     else:
         print(f"Fichier non autorisé ou problème de format : {file.filename}")
-        return redirect(url_for('index'))
+        return jsonify({"error": "Fichier non autorisé ou problème de format"}), 400
 
 @app.route('/start_recording', methods=['POST'])
 def start_recording():

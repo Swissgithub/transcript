@@ -129,6 +129,7 @@
                     <input id="uploadButton" type="submit" value="Transcrire" class="btn btn-primary">
                 </form>
                 <div id="uploadMessage"></div>
+                <div id="fileTranscription"></div>
             </div>
         </div>
 
@@ -147,13 +148,28 @@
             event.preventDefault();
             const uploadButton = document.getElementById('uploadButton');
             const uploadMessage = document.getElementById('uploadMessage');
+            const fileTranscription = document.getElementById('fileTranscription');
             uploadButton.disabled = true;
             uploadMessage.textContent = "Transcription en cours...";
-            // Simulate file upload and processing
-            setTimeout(() => {
-                uploadMessage.textContent = "Transcription terminée.";
+            const formData = new FormData(event.target);
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
                 uploadButton.disabled = false;
-            }, 3000); // Simulate a delay for processing
+                if (data.transcription) {
+                    uploadMessage.textContent = "Transcription terminée.";
+                    fileTranscription.textContent = data.transcription;
+                } else {
+                    uploadMessage.textContent = "Erreur lors de la transcription.";
+                }
+            })
+            .catch(() => {
+                uploadButton.disabled = false;
+                uploadMessage.textContent = "Erreur lors de la transcription.";
+            });
         }
 
         function startRecording(event) {
