@@ -107,6 +107,11 @@
             font-size: 1.2em;
             color: #333;
             white-space: pre-wrap;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -162,6 +167,7 @@
                 if (data.transcription) {
                     uploadMessage.textContent = "Transcription terminée.";
                     fileTranscription.textContent = data.transcription;
+                    fileTranscription.style.display = 'block';
                 } else {
                     uploadMessage.textContent = "Erreur lors de la transcription.";
                 }
