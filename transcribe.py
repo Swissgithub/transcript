@@ -1,8 +1,8 @@
-# transcribe.py
 import whisper
 from moviepy.editor import VideoFileClip
 import os
 import subprocess
+from transformers import pipeline
 
 def download_model_if_not_exists(model_name="small"):
     """
@@ -53,6 +53,10 @@ def transcribe_audio(file_path):
         # Supprimer le fichier audio converti
         os.remove(converted_audio)
         
+        # Décharger le modèle Whisper de la mémoire
+        global model
+        del model
+        
         return result["text"]
     except Exception as e:
         print(f"Erreur lors de la transcription de {file_path} : {e}")
@@ -72,3 +76,18 @@ def extract_audio_from_video(video_path, audio_path):
         convert_audio(audio_path, audio_path, samp_rate=16000)
     except Exception as e:
         print(f"Erreur lors de l'extraction de l'audio de {video_path} : {e}")
+
+def summarize_transcription(transcription_text):
+    """
+    Utilise un modèle LLM pour résumer la transcription et générer une liste d'actions.
+    """
+    # Charger le modèle de résumé
+    summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+    
+    # Générer le résumé
+    summary = summarizer(transcription_text, max_length=130, min_length=30, do_sample=False)
+    
+    # Générer une liste d'actions (exemple simplifié)
+    actions = ["Action 1", "Action 2", "Action 3"]  # Remplacer par une logique réelle
+    
+    return summary[0]['summary_text'], actions

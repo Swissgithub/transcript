@@ -4,7 +4,7 @@ import os
 import uuid
 import requests
 
-from transcribe import transcribe_audio, extract_audio_from_video
+from transcribe import transcribe_audio, extract_audio_from_video, summarize_transcription
 from recorder import AudioRecorder
 
 app = Flask(__name__)
@@ -96,7 +96,14 @@ def upload_file():
         # Sauvegarder la transcription dans un fichier
         transcription_file = save_transcription(transcription)
         
-        return jsonify({"transcription": transcription})
+        # Générer le résumé et la liste d'actions
+        summary, actions = summarize_transcription(transcription)
+        
+        return jsonify({
+            "transcription": transcription,
+            "summary": summary,
+            "actions": actions
+        })
     else:
         print(f"Fichier non autorisé ou problème de format : {file.filename}")
         return jsonify({"error": "Fichier non autorisé ou problème de format"}), 400
@@ -130,7 +137,15 @@ def stop_recording():
         # Sauvegarder la transcription dans un fichier
         transcription_file = save_transcription(transcription)
         
-        return jsonify({"status": "recording_stopped", "transcription": transcription})
+        # Générer le résumé et la liste d'actions
+        summary, actions = summarize_transcription(transcription)
+        
+        return jsonify({
+            "status": "recording_stopped",
+            "transcription": transcription,
+            "summary": summary,
+            "actions": actions
+        })
     else:
         return jsonify({"status": "no_recording"})
 
