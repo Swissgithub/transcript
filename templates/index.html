@@ -2,8 +2,6 @@
 <html>
 <head>
     <title>Assistant de Transcription Audio</title>
-    <!-- Intégration de Bootstrap CSS pour un design responsive -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,19 +11,66 @@
             color: #333;
             margin-bottom: 30px;
         }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
         .section {
             margin-bottom: 40px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
         }
-        .button {
+        .card-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn {
             padding: 10px 20px;
-            background-color: #0066cc;
             color: white;
             border: none;
             cursor: pointer;
             font-size: 16px;
+            border-radius: 4px;
+            margin-right: 10px;
         }
-        .button:hover {
-            background-color: #005bb5;
+        .btn-primary {
+            background-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
         }
     </style>
 </head>
@@ -40,7 +85,7 @@
                     <div class="mb-3">
                         <input class="form-control" type="file" name="file" accept=".wav,.mp3,.mp4,.mov,.avi" required>
                     </div>
-                    <input type="submit" value="Transcrire" class="btn btn-primary button">
+                    <input type="submit" value="Transcrire" class="btn btn-primary">
                 </form>
             </div>
         </div>
@@ -48,13 +93,11 @@
         <div class="section card">
             <div class="card-body">
                 <h2 class="card-title">Enregistrer un audio en direct</h2>
-                <button id="recordButton" class="btn btn-success button" onclick="toggleRecording(event)">Démarrer l'enregistrement</button>
-                <button id="stopButton" class="btn btn-warning button" onclick="toggleStop(event)" style="display: none;">Stop l'enregistrement</button>
+                <button id="recordButton" class="btn btn-success" onclick="toggleRecording(event)">Démarrer l'enregistrement</button>
+                <button id="stopButton" class="btn btn-warning" onclick="toggleStop(event)" style="display: none;">Stop l'enregistrement</button>
             </div>
         </div>
     </div>
-    <!-- Intégration de Bootstrap JS (optionnel) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let isRecording = false;
         let isStopped = false;
