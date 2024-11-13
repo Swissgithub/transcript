@@ -40,6 +40,7 @@ def transcribe_audio(file_path):
     """
     Transcrit un fichier audio en texte après l'avoir converti au format requis.
     """
+    global model
     try:
         # Chemin vers l'audio converti
         converted_audio = "converted_audio.wav"
@@ -54,7 +55,6 @@ def transcribe_audio(file_path):
         os.remove(converted_audio)
         
         # Décharger le modèle Whisper de la mémoire
-        global model
         del model
         
         return result["text"]
