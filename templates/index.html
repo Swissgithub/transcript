@@ -1,48 +1,242 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transcription App</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Assistant de Transcription Audio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .section {
+            margin-bottom: 40px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        .card-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn {
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+        }
+        #connection-status {
+            margin-top: 20px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+        }
+        #connection-status span {
+            margin-left: 10px;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .connected {
+            background-color: green;
+        }
+        .disconnected {
+            background-color: red;
+        }
+        #transcription, #fileTranscription {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+            white-space: pre-wrap;
+            border: 2px solid #007bff;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
-    <h1>Transcription App</h1>
-    <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" name="file" id="fileInput" accept=".wav, .mp3, .mp4, .mov, .avi">
-        <button type="submit">Upload and Transcribe</button>
-    </form>
-    <div id="result">
-        <h2>Transcription</h2>
-        <p id="transcriptionText"></p>
-        <h2>Résumé</h2>
-        <p id="summaryText"></p>
-        <h2>Actions</h2>
-        <ul id="actionsList"></ul>
+    <div class="container">
+        <h1>Assistant de Transcription Audio</h1>
+
+        <div id="connection-status">
+            <div id="status-dot" class="status-dot"></div>
+            <span id="status-text">Checking server connection...</span>
+        </div>
+
+        <div class="section card">
+            <div class="card-body">
+                <h2 class="card-title">Télécharger un fichier audio ou vidéo</h2>
+                <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" onsubmit="handleUpload(event)">
+                    <div class="mb-3">
+                        <input class="form-control" type="file" name="file" accept=".wav,.mp3,.mp4,.mov,.avi" required>
+                    </div>
+                    <input id="uploadButton" type="submit" value="Transcrire" class="btn btn-primary">
+                </form>
+                <div id="uploadMessage"></div>
+                <div id="fileTranscription"></div>
+            </div>
+        </div>
+
+        <div class="section card">
+            <div class="card-body">
+                <h2 class="card-title">Enregistrer un audio en direct</h2>
+                <button id="recordButton" class="btn btn-success" onclick="startRecording(event)">Démarrer l'enregistrement</button>
+                <button id="stopButton" class="btn btn-danger" onclick="stopRecording(event)" disabled>Stop l'enregistrement</button>
+                <div id="message"></div>
+                <div id="transcription"></div>
+            </div>
+        </div>
     </div>
     <script>
-        document.getElementById('uploadForm').onsubmit = async function(event) {
+        function handleUpload(event) {
             event.preventDefault();
-            const fileInput = document.getElementById('fileInput');
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-
-            const response = await fetch('/upload', {
+            const uploadButton = document.getElementById('uploadButton');
+            const uploadMessage = document.getElementById('uploadMessage');
+            const fileTranscription = document.getElementById('fileTranscription');
+            uploadButton.disabled = true;
+            uploadMessage.textContent = "Transcription en cours...";
+            const formData = new FormData(event.target);
+            fetch('/upload', {
                 method: 'POST',
                 body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                uploadButton.disabled = false;
+                if (data.transcription) {
+                    uploadMessage.textContent = "Transcription terminée.";
+                    fileTranscription.textContent = data.transcription;
+                    fileTranscription.style.display = 'block';
+                } else {
+                    uploadMessage.textContent = "Erreur lors de la transcription.";
+                }
+            })
+            .catch(() => {
+                uploadButton.disabled = false;
+                uploadMessage.textContent = "Erreur lors de la transcription.";
             });
+        }
 
-            const result = await response.json();
-            document.getElementById('transcriptionText').innerText = result.transcription;
-            document.getElementById('summaryText').innerText = result.summary;
-            const actionsList = document.getElementById('actionsList');
-            actionsList.innerHTML = '';
-            result.actions.forEach(action => {
-                const li = document.createElement('li');
-                li.innerText = action;
-                actionsList.appendChild(li);
-            });
-        };
+        function startRecording(event) {
+            event.preventDefault(); // Empêche le rechargement de la page
+            const recordButton = document.getElementById('recordButton');
+            const stopButton = document.getElementById('stopButton');
+            const message = document.getElementById('message');
+            fetch('/start_recording', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    recordButton.disabled = true;
+                    stopButton.disabled = false;
+                    message.textContent = "Enregistrement en cours...";
+                });
+        }
+
+        function stopRecording(event) {
+            event.preventDefault(); // Empêche le rechargement de la page
+            const recordButton = document.getElementById('recordButton');
+            const stopButton = document.getElementById('stopButton');
+            const message = document.getElementById('message');
+            const transcriptionDiv = document.getElementById('transcription');
+            stopButton.disabled = true;
+            message.textContent = "Transcription en cours...";
+            fetch('/stop_recording', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    recordButton.disabled = false;
+                    if (data.status === "recording_stopped") {
+                        message.textContent = "Enregistrement arrêté. Transcription créée.";
+                        transcriptionDiv.textContent = data.transcription;
+                    } else {
+                        message.textContent = "Aucun enregistrement en cours.";
+                    }
+                });
+        }
+
+        function updateServerConnectionStatus() {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            fetch('/check_internet')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.internet_access) {
+                        statusDot.classList.remove('disconnected');
+                        statusDot.classList.add('connected');
+                        statusText.textContent = "Server connected to internet";
+                    } else {
+                        statusDot.classList.remove('connected');
+                        statusDot.classList.add('disconnected');
+                        statusText.textContent = "Server not connected to internet";
+                    }
+                })
+                .catch(() => {
+                    statusDot.classList.remove('connected');
+                    statusDot.classList.add('disconnected');
+                    statusText.textContent = "Error checking server connection";
+                });
+        }
+
+        window.addEventListener('load', updateServerConnectionStatus);
     </script>
 </body>
 </html>
