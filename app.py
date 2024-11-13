@@ -151,7 +151,7 @@ def health():
 @app.route('/check_internet')
 def check_internet():
     """
-    Vérifie si le serveur a accès à Internet.
+    Vérifie si le serveur a accès à Internet avec un délai d'attente de 5 secondes.
     """
     try:
         requests.get('https://www.google.com', timeout=5)
