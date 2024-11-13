@@ -16,9 +16,11 @@ def download_model_if_not_exists(model_name="small"):
         print(f"Téléchargement du modèle {model_name}...")
         whisper.load_model(model_name)
 
-# Charger le modèle Whisper
-download_model_if_not_exists()
-model = whisper.load_model("small")
+def load_whisper_model():
+    """
+    Charge le modèle Whisper.
+    """
+    return whisper.load_model("small")
 
 def convert_audio(file_path, target_path, samp_rate=16000):
     """
@@ -40,7 +42,7 @@ def transcribe_audio(file_path):
     """
     Transcrit un fichier audio en texte après l'avoir converti au format requis.
     """
-    global model
+    model = load_whisper_model()
     try:
         # Chemin vers l'audio converti
         converted_audio = "converted_audio.wav"
@@ -53,9 +55,6 @@ def transcribe_audio(file_path):
         
         # Supprimer le fichier audio converti
         os.remove(converted_audio)
-        
-        # Décharger le modèle Whisper de la mémoire
-        del model
         
         return result["text"]
     except Exception as e:
@@ -84,8 +83,12 @@ def summarize_transcription(transcription_text):
     # Charger le modèle de résumé
     summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
     
+    # Calculer la longueur maximale du résumé
+    input_length = len(transcription_text.split())
+    max_length = min(130, input_length)
+    
     # Générer le résumé
-    summary = summarizer(transcription_text, max_length=130, min_length=30, do_sample=False)
+    summary = summarizer(transcription_text, max_length=max_length, min_length=1, do_sample=False)
     
     # Générer une liste d'actions (exemple simplifié)
     actions = ["Action 1", "Action 2", "Action 3"]  # Remplacer par une logique réelle
