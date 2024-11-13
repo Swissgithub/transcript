@@ -102,6 +102,12 @@
         .disconnected {
             background-color: red;
         }
+        #transcription {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 <body>
@@ -132,6 +138,7 @@
                 <button id="recordButton" class="btn btn-success" onclick="startRecording(event)">Démarrer l'enregistrement</button>
                 <button id="stopButton" class="btn btn-danger" onclick="stopRecording(event)" disabled>Stop l'enregistrement</button>
                 <div id="message"></div>
+                <div id="transcription"></div>
             </div>
         </div>
     </div>
@@ -168,6 +175,7 @@
             const recordButton = document.getElementById('recordButton');
             const stopButton = document.getElementById('stopButton');
             const message = document.getElementById('message');
+            const transcriptionDiv = document.getElementById('transcription');
             stopButton.disabled = true;
             message.textContent = "Transcription en cours...";
             fetch('/stop_recording', { method: 'POST' })
@@ -176,6 +184,7 @@
                     recordButton.disabled = false;
                     if (data.status === "recording_stopped") {
                         message.textContent = "Enregistrement arrêté. Transcription créée.";
+                        transcriptionDiv.textContent = data.transcription;
                     } else {
                         message.textContent = "Aucun enregistrement en cours.";
                     }
