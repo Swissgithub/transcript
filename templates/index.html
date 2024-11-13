@@ -81,11 +81,37 @@
             font-size: 1.2em;
             color: #333;
         }
+        #connection-status {
+            margin-top: 20px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+        }
+        #connection-status span {
+            margin-left: 10px;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .connected {
+            background-color: green;
+        }
+        .disconnected {
+            background-color: red;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Assistant de Transcription Audio</h1>
+
+        <div id="connection-status">
+            <div id="status-dot" class="status-dot"></div>
+            <span id="status-text">Checking connection...</span>
+        </div>
 
         <div class="section card">
             <div class="card-body">
@@ -128,11 +154,12 @@
             const recordButton = document.getElementById('recordButton');
             const stopButton = document.getElementById('stopButton');
             const message = document.getElementById('message');
+            stopButton.disabled = true;
+            message.textContent = "Transcription en cours...";
             fetch('/stop_recording', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     recordButton.disabled = false;
-                    stopButton.disabled = true;
                     if (data.status === "recording_stopped") {
                         message.textContent = "Enregistrement arrêté. Transcription créée.";
                     } else {
@@ -140,6 +167,24 @@
                     }
                 });
         }
+
+        function updateConnectionStatus() {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            if (navigator.onLine) {
+                statusDot.classList.remove('disconnected');
+                statusDot.classList.add('connected');
+                statusText.textContent = "Connected to internet";
+            } else {
+                statusDot.classList.remove('connected');
+                statusDot.classList.add('disconnected');
+                statusText.textContent = "No internet connection";
+            }
+        }
+
+        window.addEventListener('load', updateConnectionStatus);
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
     </script>
 </body>
 </html>
