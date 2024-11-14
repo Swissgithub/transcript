@@ -85,10 +85,11 @@ def summarize_transcription(transcription_text):
     
     # Calculer la longueur maximale du résumé
     input_length = len(transcription_text.split())
-    max_length = min(100, input_length // 2)  # Ajuster pour une meilleure synthèse
+    max_length = min(50, input_length // 3)  # Ajuster pour une meilleure synthèse
+    min_length = 15  # Réduire la longueur minimale pour un résumé plus concis
     
     # Générer le résumé
-    summary = summarizer(transcription_text, max_length=max_length, min_length=25, do_sample=False)
+    summary = summarizer(transcription_text, max_length=max_length, min_length=min_length, do_sample=False)
     
     # Générer une liste d'actions (exemple simplifié)
     actions = ["Action 1", "Action 2", "Action 3"]  # Remplacer par une logique réelle
