@@ -72,7 +72,7 @@ def extract_audio_from_video(video_path, audio_path):
         video.audio.write_audiofile(audio_path)
         
         # Convertir l'audio extrait
-        convert_audio(audio_path, audio_path, samp_rate=16000)
+            convert_audio(audio_path, audio_path, samp_rate=16000)
     except Exception as e:
         print(f"Erreur lors de l'extraction de l'audio de {video_path} : {e}")
 
@@ -85,10 +85,10 @@ def summarize_transcription(transcription_text):
     
     # Calculer la longueur maximale du résumé
     input_length = len(transcription_text.split())
-    max_length = min(130, input_length)
+    max_length = min(100, input_length // 2)  # Ajuster pour une meilleure synthèse
     
     # Générer le résumé
-    summary = summarizer(transcription_text, max_length=max_length, min_length=1, do_sample=False)
+    summary = summarizer(transcription_text, max_length=max_length, min_length=25, do_sample=False)
     
     # Générer une liste d'actions (exemple simplifié)
     actions = ["Action 1", "Action 2", "Action 3"]  # Remplacer par une logique réelle
