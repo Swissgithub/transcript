@@ -72,7 +72,7 @@ def extract_audio_from_video(video_path, audio_path):
         video.audio.write_audiofile(audio_path)
         
         # Convertir l'audio extrait
-            convert_audio(audio_path, audio_path, samp_rate=16000)
+        convert_audio(audio_path, audio_path, samp_rate=16000)
     except Exception as e:
         print(f"Erreur lors de l'extraction de l'audio de {video_path} : {e}")
 
