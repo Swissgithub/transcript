@@ -2,7 +2,6 @@ import whisper
 from moviepy.editor import VideoFileClip
 import os
 import subprocess
-from transformers import pipeline
 
 def download_model_if_not_exists(model_name="small"):
     """
@@ -75,23 +74,3 @@ def extract_audio_from_video(video_path, audio_path):
         convert_audio(audio_path, audio_path, samp_rate=16000)
     except Exception as e:
         print(f"Erreur lors de l'extraction de l'audio de {video_path} : {e}")
-
-def summarize_transcription(transcription_text):
-    """
-    Utilise un modèle LLM pour résumer la transcription et générer une liste d'actions.
-    """
-    # Charger le modèle de résumé
-    summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-    
-    # Calculer la longueur maximale du résumé
-    input_length = len(transcription_text.split())
-    max_length = min(50, input_length // 3)  # Ajuster pour une meilleure synthèse
-    min_length = 15  # Réduire la longueur minimale pour un résumé plus concis
-    
-    # Générer le résumé
-    summary = summarizer(transcription_text, max_length=max_length, min_length=min_length, do_sample=False)
-    
-    # Générer une liste d'actions (exemple simplifié)
-    actions = ["Action 1", "Action 2", "Action 3"]  # Remplacer par une logique réelle
-    
-    return summary[0]['summary_text'], actions
