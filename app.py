@@ -4,7 +4,7 @@ import os
 import uuid
 import requests
 
-from transcribe import transcribe_audio, extract_audio_from_video
+from transcribe import transcribe_audio, extract_audio_from_video, summarize_transcription
 from recorder import AudioRecorder
 
 app = Flask(__name__)
@@ -32,15 +32,18 @@ def generate_unique_filename(extension=".txt"):
     """
     return f"transcription_{uuid.uuid4().hex}{extension}"
 
-def save_transcription(text, filename=None):
+def save_transcription(text, summary, filename=None):
     """
-    Sauvegarde la transcription dans un fichier texte.
+    Sauvegarde la transcription et le résumé dans un fichier texte.
     """
     if not filename:
         filename = generate_unique_filename()
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(text)
+        f.write("Transcription:\n")
+        f.write(text + "\n\n")
+        f.write("Résumé:\n")
+        f.write(summary + "\n")
     return file_path
 
 # Instance de l'enregistreur audio
@@ -93,10 +96,17 @@ def upload_file():
             except Exception as e:
                 transcription = f"Erreur lors de la transcription : {e}"
         
-        # Sauvegarder la transcription dans un fichier
-        transcription_file = save_transcription(transcription)
+        # Générer le résumé et la liste d'actions
+        summary, actions = summarize_transcription(transcription)
         
-        return jsonify({"transcription": transcription})
+        # Sauvegarder la transcription et le résumé dans un fichier
+        transcription_file = save_transcription(transcription, summary)
+        
+        return jsonify({
+            "transcription": transcription,
+            "summary": summary,
+            "actions": actions
+        })
     else:
         print(f"Fichier non autorisé ou problème de format : {file.filename}")
         return jsonify({"error": "Fichier non autorisé ou problème de format"}), 400
@@ -127,10 +137,18 @@ def stop_recording():
         except Exception as e:
             transcription = f"Erreur lors de la transcription : {e}"
         
-        # Sauvegarder la transcription dans un fichier
-        transcription_file = save_transcription(transcription)
+        # Générer le résumé et la liste d'actions
+        summary, actions = summarize_transcription(transcription)
         
-        return jsonify({"status": "recording_stopped", "transcription": transcription})
+        # Sauvegarder la transcription et le résumé dans un fichier
+        transcription_file = save_transcription(transcription, summary)
+        
+        return jsonify({
+            "status": "recording_stopped",
+            "transcription": transcription,
+            "summary": summary,
+            "actions": actions
+        })
     else:
         return jsonify({"status": "no_recording"})
 
