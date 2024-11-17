@@ -55,24 +55,10 @@ def transcribe_audio(file_path):
         # Supprimer le fichier audio converti
         os.remove(converted_audio)
         
-        transcription_text = result["text"]
-        
-        # Résumer le texte transcrit
-        summary = summarize_with_openllama(transcription_text)
-        
-        return transcription_text, summary
+        return result["text"]
     except Exception as e:
         print(f"Erreur lors de la transcription de {file_path} : {e}")
-        return "", ""
-
-def summarize_with_openllama(transcription_text):
-    """
-    Utilise openllama-7b pour générer un résumé du texte transcrit.
-    """
-    # Placeholder for openllama-7b integration
-    # Replace this with actual openllama-7b summarization logic
-    summary = "Résumé généré par openllama-7b. Identifiez les actions ici."
-    return summary
+        return ""
 
 def extract_audio_from_video(video_path, audio_path):
     """
