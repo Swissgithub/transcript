@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 import os
 import uuid
 import requests
+import subprocess
 
 from transcribe import transcribe_audio, extract_audio_from_video
 from recorder import AudioRecorder
@@ -164,6 +165,18 @@ def check_internet():
         return jsonify({"internet_access": True})
     except requests.ConnectionError:
         return jsonify({"internet_access": False})
+
+@app.route('/summarize', methods=['POST'])
+def summarize():
+    """
+    Exécute le script de résumé de transcription et retourne le résultat.
+    """
+    try:
+        result = subprocess.run(['python', 'summarize_transcription.py'], capture_output=True, text=True)
+        summary = result.stdout.strip()
+        return jsonify({"summary": summary})
+    except Exception as e:
+        return jsonify({"error": f"Erreur lors du résumé : {e}"}), 500
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
