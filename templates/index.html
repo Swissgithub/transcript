@@ -154,7 +154,9 @@
             const uploadButton = document.getElementById('uploadButton');
             const uploadMessage = document.getElementById('uploadMessage');
             const fileTranscription = document.getElementById('fileTranscription');
+            const recordButton = document.getElementById('recordButton'); // Get the record button
             uploadButton.disabled = true;
+            recordButton.disabled = true; // Disable the record button
             uploadMessage.textContent = "Transcription en cours...";
             const formData = new FormData(event.target);
             fetch('/upload', {
@@ -164,6 +166,7 @@
             .then(response => response.json())
             .then(data => {
                 uploadButton.disabled = false;
+                recordButton.disabled = false; // Re-enable the record button
                 if (data.transcription) {
                     uploadMessage.textContent = "Transcription terminée.";
                     fileTranscription.textContent = data.transcription;
@@ -174,6 +177,7 @@
             })
             .catch(() => {
                 uploadButton.disabled = false;
+                recordButton.disabled = false; // Re-enable the record button
                 uploadMessage.textContent = "Erreur lors de la transcription.";
             });
         }
