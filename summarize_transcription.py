@@ -47,7 +47,7 @@ def summarize_with_transformers(transcription_text):
     transcription_text = "Summarize the key themes and main ideas of the following conversation: " + transcription_text
 
     # Load the summarization model
-    summarizer = pipeline("summarization", model="flan-t5-small")
+    summarizer = pipeline("summarization", model="t5-base")
     
     # Split the text if it exceeds the token limit
     segments = split_text(transcription_text)
