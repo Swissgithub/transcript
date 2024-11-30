@@ -44,10 +44,10 @@ def summarize_with_transformers(transcription_text):
     transcription_text = preprocess_text(transcription_text)
     
     # Add contextual instruction
-    transcription_text = "Create a concise summary highlighting the main ideas: " + transcription_text
+    transcription_text = "Summarize the key themes and main ideas of the following conversation: " + transcription_text
 
-    # Load the summarization model
-    summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+    # Load the summarization model (Pegasus)
+    summarizer = pipeline("summarization", model="google/pegasus-xsum")
     
     # Split the text if it exceeds the token limit
     segments = split_text(transcription_text)
