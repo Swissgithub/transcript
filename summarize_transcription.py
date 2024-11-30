@@ -44,7 +44,7 @@ def summarize_with_transformers(transcription_text):
     transcription_text = preprocess_text(transcription_text)
     
     # Add contextual instruction
-    transcription_text = "Summarize the following text: " + transcription_text
+transcription_text = "Create a concise summary highlighting the main ideas: " + transcription_text
 
     # Load the summarization model
     summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
@@ -54,7 +54,7 @@ def summarize_with_transformers(transcription_text):
     
     # Summarize each segment
     summaries = [
-        summarizer(segment, max_length=100, min_length=30, do_sample=False)[0]['summary_text']
+        summarizer(segment, max_length=75, min_length=20, do_sample=False)[0]['summary_text']
         for segment in segments
     ]
     
