@@ -26,7 +26,8 @@ def summarize_with_transformers(transcription_text):
     Utilise un modèle de Hugging Face Transformers pour générer un résumé du texte transcrit.
     """
     summarizer = pipeline("summarization")
-    summary = summarizer(transcription_text, max_length=130, min_length=30, do_sample=False)
+    # Ajuster les paramètres pour un résumé plus détaillé
+    summary = summarizer(transcription_text, max_length=200, min_length=50, do_sample=False)
     return summary[0]['summary_text']
 
 def get_latest_transcription_file(directory):
