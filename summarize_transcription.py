@@ -2,7 +2,7 @@ import os
 
 def summarize_transcription(file_path):
     """
-    Lit un fichier de transcription, génère un résumé et identifie les actions.
+    Lit un fichier de transcription, génère un résumé, et l'ajoute à la fin du fichier.
     """
     try:
         with open(file_path, 'r') as file:
@@ -11,10 +11,14 @@ def summarize_transcription(file_path):
         # Placeholder for openllama-7b integration
         summary = summarize_with_openllama(transcription_text)
         
-        print("Résumé :")
-        print(summary)
+        # Append the summary to the transcription file
+        with open(file_path, 'a') as file:
+            file.write("\n\n---\nRésumé :\n")
+            file.write(summary)
+        
+        print("Résumé ajouté au fichier de transcription.")
     except Exception as e:
-        print(f"Erreur lors de la lecture du fichier de transcription : {e}")
+        print(f"Erreur lors de la lecture ou de l'écriture du fichier de transcription : {e}")
 
 def summarize_with_openllama(transcription_text):
     """
