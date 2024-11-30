@@ -1,8 +1,8 @@
-Flask
-gunicorn
-openai-whisper
-ffmpeg-python
-pyaudio
+flask
+werkzeug
+requests
+transformers
+whisper
 moviepy
-flask-httpauth
-torch
+tkinter
+pyaudio

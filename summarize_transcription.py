@@ -1,4 +1,5 @@
 import os
+from transformers import pipeline
 
 def summarize_transcription(file_path):
     """
@@ -8,8 +9,8 @@ def summarize_transcription(file_path):
         with open(file_path, 'r') as file:
             transcription_text = file.read()
         
-        # Placeholder for openllama-7b integration
-        summary = summarize_with_openllama(transcription_text)
+        # Utiliser Hugging Face Transformers pour générer le résumé
+        summary = summarize_with_transformers(transcription_text)
         
         # Append the summary to the transcription file
         with open(file_path, 'a') as file:
@@ -20,14 +21,13 @@ def summarize_transcription(file_path):
     except Exception as e:
         print(f"Erreur lors de la lecture ou de l'écriture du fichier de transcription : {e}")
 
-def summarize_with_openllama(transcription_text):
+def summarize_with_transformers(transcription_text):
     """
-    Utilise openllama-7b pour générer un résumé du texte transcrit.
+    Utilise un modèle de Hugging Face Transformers pour générer un résumé du texte transcrit.
     """
-    # Placeholder for openllama-7b integration
-    # Replace this with actual openllama-7b summarization logic
-    summary = "Résumé généré par openllama-7b. Identifiez les actions ici."
-    return summary
+    summarizer = pipeline("summarization")
+    summary = summarizer(transcription_text, max_length=130, min_length=30, do_sample=False)
+    return summary[0]['summary_text']
 
 def get_latest_transcription_file(directory):
     """
