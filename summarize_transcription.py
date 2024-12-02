@@ -25,8 +25,12 @@ def summarize_with_llama(transcription_text):
     """
     Utilise l'API locale LLaMA pour générer un résumé du texte transcrit.
     """
-    url = "http://localhost:11434"
-    payload = {"prompt": f"summarize: {transcription_text}"}
+    url = "http://localhost:11434/api/generate"
+    payload = {
+        "model": "tinyllama",
+        "prompt": f"summarize: {transcription_text}",
+        "stream": False
+    }
     response = requests.post(url, json=payload)
     
     if response.status_code == 200:
@@ -51,4 +55,3 @@ if __name__ == "__main__":
         summarize_transcription(latest_file)
     except Exception as e:
         print(f"Erreur lors de la récupération du fichier de transcription : {e}")
-    
