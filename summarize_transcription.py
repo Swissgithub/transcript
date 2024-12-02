@@ -27,12 +27,18 @@ def summarize_with_llama(transcription_text):
     """
     url = "http://localhost:11434"
     payload = {"prompt": f"summarize: {transcription_text}"}
-    response = requests.post(url, json=payload)
-    
-    if response.status_code == 200:
-        return response.json().get("response", "Erreur : réponse vide de l'API")
-    else:
-        return f"Erreur : {response.status_code}, {response.text}"
+    try:
+        response = requests.post(url, json=payload)
+        print(f"Requête envoyée à {url} avec le payload : {payload}")
+        print(f"Statut de la réponse : {response.status_code}")
+        print(f"Contenu de la réponse : {response.text}")
+        
+        if response.status_code == 200:
+            return response.json().get("response", "Erreur : réponse vide de l'API")
+        else:
+            return f"Erreur : {response.status_code}, {response.text}"
+    except requests.exceptions.RequestException as e:
+        return f"Erreur de requête : {e}"
 
 def get_latest_transcription_file(directory):
     """
