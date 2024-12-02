@@ -58,7 +58,7 @@ def transcribe_audio(file_path):
         return result["text"]
     except Exception as e:
         print(f"Erreur lors de la transcription de {file_path} : {e}")
-        return ""
+        return f"Erreur lors de la transcription : {e}"
 
 def extract_audio_from_video(video_path, audio_path):
     """
