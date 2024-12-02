@@ -15,7 +15,7 @@
         .section {
             margin-bottom: 40px;
         }
-        .transcription {
+        .transcription, .summary {
             background-color: #f4f4f4;
             padding: 20px;
             border-radius: 5px;
@@ -45,6 +45,10 @@
                 <h2 class="card-title">Transcription</h2>
                 <div class="transcription">
                     {{ transcription }}
+                </div>
+                <h2 class="card-title">Résumé</h2>
+                <div class="summary">
+                    {{ summary }}
                 </div>
                 <a href="{{ url_for('index') }}" class="btn btn-primary button">Retour</a>
             </div>
