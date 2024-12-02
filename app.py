@@ -99,11 +99,10 @@ def upload_file():
         # Sauvegarder la transcription dans un fichier
         transcription_file = save_transcription(transcription)
         
-        # Lire le contenu du fichier de transcription
-        with open(transcription_file, 'r', encoding='utf-8') as f:
-            transcription_content = f.read()
+        # Générer le résumé
+        summary = summarize_transcription(transcription_file)
         
-        return render_template('result.html', transcription=transcription_content)
+        return render_template('result.html', transcription=transcription, summary=summary)
     else:
         print(f"Fichier non autorisé ou problème de format : {file.filename}")
         return jsonify({"error": "Fichier non autorisé ou problème de format"}), 400
@@ -137,11 +136,10 @@ def stop_recording():
         # Sauvegarder la transcription dans un fichier
         transcription_file = save_transcription(transcription)
         
-        # Lire le contenu du fichier de transcription
-        with open(transcription_file, 'r', encoding='utf-8') as f:
-            transcription_content = f.read()
+        # Générer le résumé
+        summary = summarize_transcription(transcription_file)
         
-        return render_template('result.html', transcription=transcription_content)
+        return render_template('result.html', transcription=transcription, summary=summary)
     else:
         return jsonify({"status": "no_recording"})
 
