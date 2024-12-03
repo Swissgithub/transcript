@@ -4,9 +4,6 @@ import os
 import uuid
 import requests
 import subprocess
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 from transcribe import transcribe_audio, extract_audio_from_video
 from recorder import AudioRecorder
@@ -105,52 +102,10 @@ def upload_file():
         # Générer le résumé
         summary = summarize_transcription(transcription_file)
         
-        # Log transcription and summary
-        print(f"Transcription: {transcription}")
-        print(f"Summary: {summary}")
-        
         return render_template('result.html', transcription=transcription, summary=summary)
     else:
         print(f"Fichier non autorisé ou problème de format : {file.filename}")
         return jsonify({"error": "Fichier non autorisé ou problème de format"}), 400
-
-@app.route('/send_email', methods=['POST'])
-def send_email():
-    """
-    Envoie le résultat de la transcription par email.
-    """
-    data = request.json
-    email = data.get('email')
-    transcription = data.get('transcription')
-    summary = data.get('summary')
-    
-    if not email:
-        return jsonify({"message": "Email address is required"}), 400
-    
-    try:
-        # Configurez votre serveur SMTP ici
-        smtp_server = "smtp.example.com"
-        smtp_port = 587
-        smtp_user = "your_email@example.com"
-        smtp_password = "your_password"
-        
-        msg = MIMEMultipart()
-        msg['From'] = smtp_user
-        msg['To'] = email
-        msg['Subject'] = "Transcription Results"
-        
-        body = f"Transcription:\n{transcription}\n\nSummary:\n{summary}"
-        msg.attach(MIMEText(body, 'plain'))
-        
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, email, msg.as_string())
-        server.quit()
-        
-        return jsonify({"message": "Email sent successfully"})
-    except Exception as e:
-        return jsonify({"message": f"Failed to send email: {e}"}), 500
 
 @app.route('/start_recording', methods=['POST'])
 def start_recording():
@@ -183,10 +138,6 @@ def stop_recording():
         
         # Générer le résumé
         summary = summarize_transcription(transcription_file)
-        
-        # Log transcription and summary
-        print(f"Transcription: {transcription}")
-        print(f"Summary: {summary}")
         
         return render_template('result.html', transcription=transcription, summary=summary)
     else:
