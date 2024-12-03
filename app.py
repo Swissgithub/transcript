@@ -49,6 +49,16 @@ def save_transcription(text, filename=None):
         f.write(text + "\n")
     return file_path
 
+def get_latest_transcription():
+    """
+    Récupère le contenu du dernier fichier de transcription créé.
+    """
+    files = os.listdir(app.config['UPLOAD_FOLDER'])
+    paths = [os.path.join(app.config['UPLOAD_FOLDER'], basename) for basename in files]
+    latest_file = max(paths, key=os.path.getctime)
+    with open(latest_file, 'r', encoding='utf-8') as f:
+        return f.read()
+
 # Instance de l'enregistreur audio
 recorder = AudioRecorder(output_path=os.path.join(UPLOAD_FOLDER, 'live_record.wav'))
 
@@ -57,7 +67,8 @@ def index():
     """
     Route principale affichant le formulaire d'upload et les contrôles d'enregistrement.
     """
-    return render_template('index.html')
+    latest_transcription = get_latest_transcription()
+    return render_template('index.html', transcription_content=latest_transcription)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
