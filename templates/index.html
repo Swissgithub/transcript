@@ -216,7 +216,7 @@
                 .then(response => response.json())
                 .then(data => {
                     recordButton.disabled = false;
-                    if (data.status === "recording_stopped") {
+                    if (data.transcription) {
                         message.textContent = "Enregistrement arrêté. Transcription créée.";
                         transcriptionDiv.textContent = data.transcription;
                     } else {
