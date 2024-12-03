@@ -1,12 +1,10 @@
+
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 import os
 import uuid
 import requests
 import subprocess
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 from transcribe import transcribe_audio, extract_audio_from_video
 from recorder import AudioRecorder
@@ -49,16 +47,6 @@ def save_transcription(text, filename=None):
         f.write(text + "\n")
     return file_path
 
-def get_latest_transcription():
-    """
-    Récupère le contenu du dernier fichier de transcription créé.
-    """
-    files = os.listdir(app.config['UPLOAD_FOLDER'])
-    paths = [os.path.join(app.config['UPLOAD_FOLDER'], basename) for basename in files]
-    latest_file = max(paths, key=os.path.getctime)
-    with open(latest_file, 'r', encoding='utf-8') as f:
-        return f.read()
-
 # Instance de l'enregistreur audio
 recorder = AudioRecorder(output_path=os.path.join(UPLOAD_FOLDER, 'live_record.wav'))
 
@@ -67,7 +55,7 @@ def index():
     """
     Route principale affichant le formulaire d'upload et les contrôles d'enregistrement.
     """
-    return render_template('index.html', transcription_content=None)
+    return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -112,56 +100,14 @@ def upload_file():
         # Sauvegarder la transcription dans un fichier
         transcription_file = save_transcription(transcription)
         
-        # Générer le résumé
-        summary = summarize_transcription(transcription_file)
+        # Lire le contenu du fichier de transcription
+        with open(transcription_file, 'r', encoding='utf-8') as f:
+            transcription_content = f.read()
         
-        # Log transcription and summary
-        print(f"Transcription: {transcription}")
-        print(f"Summary: {summary}")
-        
-        latest_transcription = get_latest_transcription()
-        return render_template('index.html', transcription_content=latest_transcription)
+        return render_template('result.html', transcription=transcription_content)
     else:
         print(f"Fichier non autorisé ou problème de format : {file.filename}")
         return jsonify({"error": "Fichier non autorisé ou problème de format"}), 400
-
-@app.route('/send_email', methods=['POST'])
-def send_email():
-    """
-    Envoie le résultat de la transcription par email.
-    """
-    data = request.json
-    email = data.get('email')
-    transcription = data.get('transcription')
-    summary = data.get('summary')
-    
-    if not email:
-        return jsonify({"message": "Email address is required"}), 400
-    
-    try:
-        # Configurez votre serveur SMTP ici
-        smtp_server = "smtp.example.com"
-        smtp_port = 587
-        smtp_user = "your_email@example.com"
-        smtp_password = "your_password"
-        
-        msg = MIMEMultipart()
-        msg['From'] = smtp_user
-        msg['To'] = email
-        msg['Subject'] = "Transcription Results"
-        
-        body = f"Transcription:\n{transcription}\n\nSummary:\n{summary}"
-        msg.attach(MIMEText(body, 'plain'))
-        
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, email, msg.as_string())
-        server.quit()
-        
-        return jsonify({"message": "Email sent successfully"})
-    except Exception as e:
-        return jsonify({"message": f"Failed to send email: {e}"}), 500
 
 @app.route('/start_recording', methods=['POST'])
 def start_recording():
@@ -192,15 +138,11 @@ def stop_recording():
         # Sauvegarder la transcription dans un fichier
         transcription_file = save_transcription(transcription)
         
-        # Générer le résumé
-        summary = summarize_transcription(transcription_file)
+        # Lire le contenu du fichier de transcription
+        with open(transcription_file, 'r', encoding='utf-8') as f:
+            transcription_content = f.read()
         
-        # Log transcription and summary
-        print(f"Transcription: {transcription}")
-        print(f"Summary: {summary}")
-        
-        latest_transcription = get_latest_transcription()
-        return render_template('index.html', transcription_content=latest_transcription)
+        return render_template('result.html', transcription=transcription_content)
     else:
         return jsonify({"status": "no_recording"})
 
