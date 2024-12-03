@@ -102,6 +102,10 @@ def upload_file():
         # Générer le résumé
         summary = summarize_transcription(transcription_file)
         
+        # Log transcription and summary
+        print(f"Transcription: {transcription}")
+        print(f"Summary: {summary}")
+        
         return render_template('result.html', transcription=transcription, summary=summary)
     else:
         print(f"Fichier non autorisé ou problème de format : {file.filename}")
@@ -138,6 +142,10 @@ def stop_recording():
         
         # Générer le résumé
         summary = summarize_transcription(transcription_file)
+        
+        # Log transcription and summary
+        print(f"Transcription: {transcription}")
+        print(f"Summary: {summary}")
         
         return render_template('result.html', transcription=transcription, summary=summary)
     else:
