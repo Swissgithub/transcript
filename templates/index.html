@@ -147,14 +147,6 @@
                 <div id="transcription"></div>
             </div>
         </div>
-
-        <div class="section card">
-            <div class="card-body">
-                <h2 class="card-title">Résumé de la Transcription</h2>
-                <button id="summarizeButton" class="btn btn-secondary" onclick="summarizeTranscription()">Résumé</button>
-                <div id="summaryMessage"></div>
-            </div>
-        </div>
     </div>
     <script>
         function handleUpload(event) {
@@ -222,27 +214,6 @@
                     } else {
                         message.textContent = "Aucun enregistrement en cours.";
                     }
-                });
-        }
-
-        function summarizeTranscription() {
-            const summarizeButton = document.getElementById('summarizeButton');
-            const summaryMessage = document.getElementById('summaryMessage');
-            summarizeButton.disabled = true;
-            summaryMessage.textContent = "Résumé en cours...";
-            fetch('/summarize', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    summarizeButton.disabled = false;
-                    if (data.summary) {
-                        summaryMessage.textContent = "Résumé terminé : " + data.summary;
-                    } else {
-                        summaryMessage.textContent = "Erreur lors du résumé.";
-                    }
-                })
-                .catch(() => {
-                    summarizeButton.disabled = false;
-                    summaryMessage.textContent = "Erreur lors du résumé.";
                 });
         }
 
