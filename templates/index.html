@@ -151,7 +151,11 @@
         <div class="section card">
             <div class="card-body">
                 <h2 class="card-title">Contenu du fichier généré</h2>
+                {% if transcription_content %}
                 <div id="generatedFileContent">{{ transcription_content }}</div>
+                {% else %}
+                <div id="generatedFileContent">Le contenu du fichier sera affiché ici.</div>
+                {% endif %}
             </div>
         </div>
     </div>

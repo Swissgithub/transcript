@@ -67,8 +67,7 @@ def index():
     """
     Route principale affichant le formulaire d'upload et les contrôles d'enregistrement.
     """
-    latest_transcription = get_latest_transcription()
-    return render_template('index.html', transcription_content=latest_transcription)
+    return render_template('index.html', transcription_content=None)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -120,7 +119,8 @@ def upload_file():
         print(f"Transcription: {transcription}")
         print(f"Summary: {summary}")
         
-        return jsonify({"transcription": transcription, "summary": summary})
+        latest_transcription = get_latest_transcription()
+        return render_template('index.html', transcription_content=latest_transcription)
     else:
         print(f"Fichier non autorisé ou problème de format : {file.filename}")
         return jsonify({"error": "Fichier non autorisé ou problème de format"}), 400
@@ -199,7 +199,8 @@ def stop_recording():
         print(f"Transcription: {transcription}")
         print(f"Summary: {summary}")
         
-        return jsonify({"transcription": transcription, "summary": summary})
+        latest_transcription = get_latest_transcription()
+        return render_template('index.html', transcription_content=latest_transcription)
     else:
         return jsonify({"status": "no_recording"})
 
