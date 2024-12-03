@@ -102,7 +102,7 @@
         .disconnected {
             background-color: red;
         }
-        #transcription, #fileTranscription {
+        #transcription, #fileTranscription, #fileSummary {
             margin-top: 20px;
             font-size: 1.2em;
             color: #333;
@@ -135,6 +135,7 @@
                 </form>
                 <div id="uploadMessage"></div>
                 <div id="fileTranscription"></div>
+                <div id="fileSummary"></div>
             </div>
         </div>
 
@@ -154,6 +155,7 @@
             const uploadButton = document.getElementById('uploadButton');
             const uploadMessage = document.getElementById('uploadMessage');
             const fileTranscription = document.getElementById('fileTranscription');
+            const fileSummary = document.getElementById('fileSummary');
             const recordButton = document.getElementById('recordButton'); // Get the record button
             uploadButton.disabled = true;
             recordButton.disabled = true; // Disable the record button
@@ -173,6 +175,12 @@
                     fileTranscription.style.display = 'block';
                 } else {
                     uploadMessage.textContent = "Erreur lors de la transcription.";
+                }
+                if (data.summary) {
+                    fileSummary.textContent = "Résumé : " + data.summary;
+                    fileSummary.style.display = 'block';
+                } else {
+                    fileSummary.textContent = "Erreur lors du résumé.";
                 }
             })
             .catch(() => {
