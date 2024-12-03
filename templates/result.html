@@ -44,11 +44,19 @@
             <div class="card-body">
                 <h2 class="card-title">Transcription</h2>
                 <div class="transcription">
-                    {{ transcription }}
+                    {% if transcription %}
+                        {{ transcription }}
+                    {% else %}
+                        <p>Aucune transcription disponible.</p>
+                    {% endif %}
                 </div>
                 <h2 class="card-title">Résumé</h2>
                 <div class="summary">
-                    {{ summary }}
+                    {% if summary %}
+                        {{ summary }}
+                    {% else %}
+                        <p>Aucun résumé disponible.</p>
+                    {% endif %}
                 </div>
                 <a href="{{ url_for('index') }}" class="btn btn-primary button">Retour</a>
             </div>
