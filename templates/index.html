@@ -102,7 +102,7 @@
         .disconnected {
             background-color: red;
         }
-        #transcription, #fileTranscription {
+        #transcription, #fileTranscription, #generatedFileContent {
             margin-top: 20px;
             font-size: 1.2em;
             color: #333;
@@ -147,6 +147,13 @@
                 <div id="transcription"></div>
             </div>
         </div>
+
+        <div class="section card">
+            <div class="card-body">
+                <h2 class="card-title">Contenu du fichier généré</h2>
+                <div id="generatedFileContent">Le contenu du fichier sera affiché ici.</div>
+            </div>
+        </div>
     </div>
     <script>
         function handleUpload(event) {
@@ -171,6 +178,16 @@
                     uploadMessage.textContent = "Transcription terminée.";
                     fileTranscription.textContent = data.transcription;
                     fileTranscription.style.display = 'block';
+                    fetch('/path/to/your/generatedfile.txt')
+                        .then(response => response.text())
+                        .then(text => {
+                            const generatedFileContent = document.getElementById('generatedFileContent');
+                            generatedFileContent.textContent = text;
+                        })
+                        .catch(() => {
+                            const generatedFileContent = document.getElementById('generatedFileContent');
+                            generatedFileContent.textContent = "Erreur lors de la lecture du fichier généré.";
+                        });
                 } else {
                     uploadMessage.textContent = "Erreur lors de la transcription.";
                 }
