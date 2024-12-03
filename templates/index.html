@@ -169,15 +169,8 @@
                 recordButton.disabled = false; // Re-enable the record button
                 if (data.transcription) {
                     uploadMessage.textContent = "Transcription terminée.";
-                    fetch('/path/to/your/textfile.txt')
-                        .then(response => response.text())
-                        .then(text => {
-                            fileTranscription.textContent = text;
-                            fileTranscription.style.display = 'block';
-                        })
-                        .catch(() => {
-                            uploadMessage.textContent = "Erreur lors de la lecture du fichier.";
-                        });
+                    fileTranscription.textContent = data.transcription;
+                    fileTranscription.style.display = 'block';
                 } else {
                     uploadMessage.textContent = "Erreur lors de la transcription.";
                 }
