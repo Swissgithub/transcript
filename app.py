@@ -31,18 +31,10 @@ def allowed_file(filename):
     """
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def generate_unique_filename(extension=".txt"):
+def save_transcription(text, filename="current_transcription.txt"):
     """
-    Génère un nom de fichier unique basé sur un UUID.
+    Sauvegarde la transcription dans un fichier texte nommé 'current_transcription.txt'.
     """
-    return f"transcription_{uuid.uuid4().hex}{extension}"
-
-def save_transcription(text, filename=None):
-    """
-    Sauvegarde la transcription dans un fichier texte.
-    """
-    if not filename:
-        filename = generate_unique_filename()
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write("Transcription:\n")
@@ -53,10 +45,8 @@ def get_latest_transcription():
     """
     Récupère le contenu du dernier fichier de transcription créé.
     """
-    files = os.listdir(app.config['UPLOAD_FOLDER'])
-    paths = [os.path.join(app.config['UPLOAD_FOLDER'], basename) for basename in files]
-    latest_file = max(paths, key=os.path.getctime)
-    with open(latest_file, 'r', encoding='utf-8') as f:
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], "current_transcription.txt")
+    with open(file_path, 'r', encoding='utf-8') as f:
         return f.read()
 
 # Instance de l'enregistreur audio
@@ -67,8 +57,7 @@ def index():
     """
     Route principale affichant le formulaire d'upload et les contrôles d'enregistrement.
     """
-    latest_transcription = get_latest_transcription()
-    return render_template('index.html', transcription_content=latest_transcription)
+    return render_template('index.html', transcription_content=None)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -120,7 +109,8 @@ def upload_file():
         print(f"Transcription: {transcription}")
         print(f"Summary: {summary}")
         
-        return jsonify({"transcription": transcription, "summary": summary})
+        latest_transcription = get_latest_transcription()
+        return render_template('index.html', transcription_content=latest_transcription)
     else:
         print(f"Fichier non autorisé ou problème de format : {file.filename}")
         return jsonify({"error": "Fichier non autorisé ou problème de format"}), 400
@@ -199,7 +189,8 @@ def stop_recording():
         print(f"Transcription: {transcription}")
         print(f"Summary: {summary}")
         
-        return jsonify({"transcription": transcription, "summary": summary})
+        latest_transcription = get_latest_transcription()
+        return render_template('index.html', transcription_content=latest_transcription)
     else:
         return jsonify({"status": "no_recording"})
 
