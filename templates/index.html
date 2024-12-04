@@ -178,7 +178,7 @@
                     uploadMessage.textContent = "Transcription terminée.";
                     fileTranscription.textContent = data.transcription;
                     fileTranscription.style.display = 'block';
-                    fetch('/uploads/' + data.transcription_file)
+                    fetch('/uploads/' + "current_transcription.txt")
                         .then(response => response.text())
                         .then(text => {
                             const generatedFileContent = document.getElementById('generatedFileContent');
