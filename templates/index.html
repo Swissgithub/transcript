@@ -134,7 +134,7 @@
                     <input id="uploadButton" type="submit" value="Transcrire" class="btn btn-primary">
                 </form>
                 <div id="uploadMessage"></div>
-                <div id="fileTranscription"></div>
+                <div id="fileTranscription" style="display: none;"></div>
             </div>
         </div>
 
@@ -160,7 +160,6 @@
             event.preventDefault();
             const uploadButton = document.getElementById('uploadButton');
             const uploadMessage = document.getElementById('uploadMessage');
-            const fileTranscription = document.getElementById('fileTranscription');
             const recordButton = document.getElementById('recordButton'); // Get the record button
             uploadButton.disabled = true;
             recordButton.disabled = true; // Disable the record button
@@ -176,8 +175,6 @@
                 recordButton.disabled = false; // Re-enable the record button
                 if (data.transcription) {
                     uploadMessage.textContent = "Transcription terminée.";
-                    fileTranscription.textContent = data.transcription;
-                    fileTranscription.style.display = 'block';
                     fetch('/uploads/current_transcription.txt')
                         .then(response => response.text())
                         .then(text => {
