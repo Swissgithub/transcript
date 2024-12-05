@@ -1,15 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assistant de Transcription Audio</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             margin: 40px;
+            background: #f5f5f5;
+            color: #333;
         }
         h1 {
+            text-align: center;
             color: #333;
             margin-bottom: 30px;
+            font-weight: 400;
         }
         .container {
             max-width: 800px;
@@ -18,119 +24,117 @@
         .section {
             margin-bottom: 40px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
             padding: 20px;
-            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+            background: #fff;
         }
         .card-title {
             font-size: 1.5em;
             margin-bottom: 20px;
+            font-weight: 400;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
         }
         .form-control {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            font-size: 14px;
         }
         .btn {
-            padding: 10px 20px;
-            color: white;
+            padding: 12px 20px;
+            color: #fff;
             border: none;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             border-radius: 4px;
             margin-right: 10px;
+            transition: background 0.3s ease;
         }
         .btn-primary {
-            background-color: #007bff;
+            background-color: #5a67d8;
         }
         .btn-primary:hover {
-            background-color: #0056b3;
+            background-color: #4c51bf;
         }
         .btn-success {
-            background-color: #28a745;
+            background-color: #48bb78;
         }
         .btn-success:hover {
-            background-color: #218838;
-        }
-        .btn-warning {
-            background-color: #ffc107;
-        }
-        .btn-warning:hover {
-            background-color: #e0a800;
+            background-color: #38a169;
         }
         .btn-danger {
-            background-color: #dc3545;
+            background-color: #e53e3e;
         }
         .btn-danger:hover {
-            background-color: #c82333;
+            background-color: #c53030;
         }
-        .btn-secondary {
-            background-color: #6c757d;
-        }
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-        .btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        #message {
+        #message, #uploadMessage {
             margin-top: 20px;
-            font-size: 1.2em;
+            font-size: 1.1em;
             color: #333;
-        }
-        #connection-status {
-            margin-top: 20px;
-            font-size: 1.2em;
-            display: flex;
-            align-items: center;
-        }
-        #connection-status span {
-            margin-left: 10px;
-        }
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .connected {
-            background-color: green;
-        }
-        .disconnected {
-            background-color: red;
         }
         #transcription, #fileTranscription, #generatedFileContent {
             margin-top: 20px;
-            font-size: 1.2em;
+            font-size: 1em;
             color: #333;
             white-space: pre-wrap;
-            border: 2px solid #007bff;
+            border: 2px solid #5a67d8;
             padding: 10px;
             border-radius: 5px;
-            background-color: #f9f9f9;
-            box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fafafa;
+        }
+        /* Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-left-color: #5a67d8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Status Bar */
+        #status-bar {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 30px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        #status-bar span {
+            vertical-align: middle;
+            font-weight: 400;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Assistant de Transcription Audio</h1>
-
-        <div id="connection-status">
-            <div id="status-dot" class="status-dot"></div>
-            <span id="status-text">Checking server connection...</span>
+        <!-- Barre de statut (pas de connexion internet) -->
+        <div id="status-bar">
+            <span id="status-text">Mode hors-ligne - Aucun appel réseau effectué</span>
         </div>
 
+        <!-- Section Upload -->
         <div class="section card">
             <div class="card-body">
                 <h2 class="card-title">Télécharger un fichier audio ou vidéo</h2>
-                <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" onsubmit="handleUpload(event)">
-                    <div class="mb-3">
-                        <input class="form-control" type="file" name="file" accept=".wav,.mp3,.mp4,.mov,.avi" required>
-                    </div>
+                <form id="uploadForm" method="post" enctype="multipart/form-data" onsubmit="simulateUpload(event)">
+                    <input class="form-control" type="file" accept=".wav,.mp3,.mp4,.mov,.avi" required>
                     <input id="uploadButton" type="submit" value="Transcrire" class="btn btn-primary">
                 </form>
                 <div id="uploadMessage"></div>
@@ -138,16 +142,18 @@
             </div>
         </div>
 
+        <!-- Section Enregistrement -->
         <div class="section card">
             <div class="card-body">
                 <h2 class="card-title">Enregistrer un audio en direct</h2>
-                <button id="recordButton" class="btn btn-success" onclick="startRecording(event)">Démarrer l'enregistrement</button>
-                <button id="stopButton" class="btn btn-danger" onclick="stopRecording(event)" disabled>Stop l'enregistrement</button>
+                <button id="recordButton" class="btn btn-success" onclick="startFakeRecording()">Démarrer l'enregistrement</button>
+                <button id="stopButton" class="btn btn-danger" onclick="stopFakeRecording()" disabled>Arrêter l'enregistrement</button>
                 <div id="message"></div>
                 <div id="transcription"></div>
             </div>
         </div>
 
+        <!-- Section Fichier généré -->
         <div class="section card">
             <div class="card-body">
                 <h2 class="card-title">Contenu du fichier généré</h2>
@@ -155,106 +161,56 @@
             </div>
         </div>
     </div>
+
     <script>
-        function handleUpload(event) {
+        function simulateUpload(event) {
             event.preventDefault();
             const uploadButton = document.getElementById('uploadButton');
             const uploadMessage = document.getElementById('uploadMessage');
-            const recordButton = document.getElementById('recordButton'); // Get the record button
             uploadButton.disabled = true;
-            recordButton.disabled = true; // Disable the record button
-            uploadMessage.textContent = "Transcription en cours...";
-            const formData = new FormData(event.target);
-            fetch('/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
+            uploadMessage.innerHTML = '<span class="spinner"></span>Transcription en cours...';
+
+            // Simulation de traitement
+            setTimeout(() => {
                 uploadButton.disabled = false;
-                recordButton.disabled = false; // Re-enable the record button
-                if (data.transcription) {
-                    uploadMessage.textContent = "Transcription terminée.";
-                    fetch('/uploads/current_transcription.txt')
-                        .then(response => response.text())
-                        .then(text => {
-                            const generatedFileContent = document.getElementById('generatedFileContent');
-                            generatedFileContent.textContent = text;
-                        })
-                        .catch(() => {
-                            const generatedFileContent = document.getElementById('generatedFileContent');
-                            generatedFileContent.textContent = "Erreur lors de la lecture du fichier généré.";
-                        });
-                } else {
-                    uploadMessage.textContent = "Erreur lors de la transcription.";
-                }
-            })
-            .catch(() => {
-                uploadButton.disabled = false;
-                recordButton.disabled = false; // Re-enable the record button
-                uploadMessage.textContent = "Erreur lors de la transcription.";
-            });
+                uploadMessage.textContent = "Transcription terminée.";
+                document.getElementById('generatedFileContent').textContent = "Ceci est une transcription simulée du fichier envoyé.";
+            }, 3000);
         }
 
-        function startRecording(event) {
-            event.preventDefault(); // Empêche le rechargement de la page
+        let recordingInProgress = false;
+
+        function startFakeRecording() {
             const recordButton = document.getElementById('recordButton');
             const stopButton = document.getElementById('stopButton');
             const message = document.getElementById('message');
-            fetch('/start_recording', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    recordButton.disabled = true;
-                    stopButton.disabled = false;
-                    message.textContent = "Enregistrement en cours...";
-                });
+
+            if (!recordingInProgress) {
+                recordingInProgress = true;
+                recordButton.disabled = true;
+                stopButton.disabled = false;
+                message.innerHTML = '<span class="spinner"></span>Enregistrement en cours...';
+            }
         }
 
-        function stopRecording(event) {
-            event.preventDefault(); // Empêche le rechargement de la page
+        function stopFakeRecording() {
             const recordButton = document.getElementById('recordButton');
             const stopButton = document.getElementById('stopButton');
             const message = document.getElementById('message');
             const transcriptionDiv = document.getElementById('transcription');
-            stopButton.disabled = true;
-            message.textContent = "Transcription en cours...";
-            fetch('/stop_recording', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
+
+            if (recordingInProgress) {
+                stopButton.disabled = true;
+                message.innerHTML = '<span class="spinner"></span>Traitement en cours de la transcription...';
+
+                setTimeout(() => {
+                    recordingInProgress = false;
                     recordButton.disabled = false;
-                    if (data.transcription) {
-                        message.textContent = "Enregistrement arrêté. Transcription créée.";
-                        transcriptionDiv.textContent = data.transcription;
-                    } else {
-                        message.textContent = "Aucun enregistrement en cours.";
-                    }
-                });
+                    message.textContent = "Enregistrement arrêté. Transcription créée.";
+                    transcriptionDiv.textContent = "Ceci est une transcription simulée de l'enregistrement.";
+                }, 3000);
+            }
         }
-
-        function updateServerConnectionStatus() {
-            const statusDot = document.getElementById('status-dot');
-            const statusText = document.getElementById('status-text');
-            fetch('/check_internet')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.internet_access) {
-                        statusDot.classList.remove('disconnected');
-                        statusDot.classList.add('connected');
-                        statusText.textContent = "Server connected to internet";
-                    } else {
-                        statusDot.classList.remove('connected');
-                        statusDot.classList.add('disconnected');
-                        statusText.textContent = "Server not connected to internet";
-                    }
-                })
-                .catch(() => {
-                    statusDot.classList.remove('connected');
-                    statusDot.classList.add('disconnected');
-                    statusText.textContent = "Error checking server connection";
-                });
-        }
-
-        window.addEventListener('load', updateServerConnectionStatus);
     </script>
 </body>
 </html>
