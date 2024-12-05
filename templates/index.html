@@ -106,6 +106,17 @@
         #transcription-content, #summary-content {
             white-space: pre-wrap;
         }
+
+        #loader {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #loader img {
+            width: 50px;
+            height: 50px;
+        }
     </style>
 </head>
 <body>
@@ -126,6 +137,11 @@
             <button id="stopButton" class="btn btn-danger" onclick="stopRecording(event)" disabled>Stop l'enregistrement</button>
         </div>
 
+        <div id="loader">
+            <img src="loader.gif" alt="Chargement...">
+            <div>Opération en cours, veuillez patienter...</div>
+        </div>
+
         <div id="transcription-container">
             <h2>Transcription et Résumé</h2>
             <div id="transcription-content">Transcription : </div>
@@ -137,7 +153,15 @@
         function handleUpload(event) {
             event.preventDefault();
             const uploadButton = event.target.querySelector('button[type="submit"]');
+            const recordButton = document.getElementById('recordButton');
+            const stopButton = document.getElementById('stopButton');
+            const loader = document.getElementById('loader');
+
             uploadButton.disabled = true;
+            recordButton.disabled = true;
+            stopButton.disabled = true;
+            loader.style.display = 'block';
+
             const formData = new FormData(event.target);
 
             fetch('/upload', {
@@ -147,6 +171,10 @@
             .then(response => response.json())
             .then(data => {
                 uploadButton.disabled = false;
+                recordButton.disabled = false;
+                stopButton.disabled = true;
+                loader.style.display = 'none';
+
                 if (data.transcription && data.summary) {
                     displayResults(data.transcription, data.summary);
                 } else {
@@ -155,6 +183,9 @@
             })
             .catch(() => {
                 uploadButton.disabled = false;
+                recordButton.disabled = false;
+                stopButton.disabled = true;
+                loader.style.display = 'none';
                 alert("Erreur lors de la transcription.");
             });
         }
@@ -163,9 +194,14 @@
             event.preventDefault();
             const recordButton = document.getElementById('recordButton');
             const stopButton = document.getElementById('stopButton');
+            const loader = document.getElementById('loader');
+
+            loader.style.display = 'block';
+
             fetch('/start_recording', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
+                    loader.style.display = 'none';
                     if (data.status === "recording_started") {
                         recordButton.disabled = true;
                         stopButton.disabled = false;
@@ -177,11 +213,17 @@
             event.preventDefault();
             const recordButton = document.getElementById('recordButton');
             const stopButton = document.getElementById('stopButton');
+            const loader = document.getElementById('loader');
+
+            loader.style.display = 'block';
+
             fetch('/stop_recording', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
+                    loader.style.display = 'none';
                     stopButton.disabled = true;
                     recordButton.disabled = false;
+
                     if (data.transcription && data.summary) {
                         displayResults(data.transcription, data.summary);
                     } else {
