@@ -70,12 +70,16 @@ def extract_audio_from_video(video_path, audio_path):
         print(f"Extraction de l'audio du fichier vidéo : {video_path}")
         # Extraire l'audio avec moviepy
         video = VideoFileClip(video_path)
-        video.audio.write_audiofile(audio_path)
-        print(f"Audio extrait et sauvegardé dans : {audio_path}")
+        audio_temp_path = audio_path.replace('.wav', '_temp.wav')
+        video.audio.write_audiofile(audio_temp_path)
+        print(f"Audio extrait et sauvegardé dans : {audio_temp_path}")
         
         # Convertir l'audio extrait
-        convert_audio(audio_path, audio_path, samp_rate=16000)
+        convert_audio(audio_temp_path, audio_path, samp_rate=16000)
         print(f"Audio converti avec succès : {audio_path}")
+        
+        # Supprimer le fichier audio temporaire
+        os.remove(audio_temp_path)
     except Exception as e:
         print(f"Erreur lors de l'extraction de l'audio de {video_path} : {e}")
         raise e
