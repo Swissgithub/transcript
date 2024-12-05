@@ -110,7 +110,7 @@ def upload_file():
         print(f"Summary: {summary}")
         
         latest_transcription = get_latest_transcription()
-        return render_template('index.html', transcription_content=latest_transcription)
+        return jsonify({"transcription": latest_transcription, "summary": summary})
     else:
         print(f"Fichier non autorisé ou problème de format : {file.filename}")
         return jsonify({"error": "Fichier non autorisé ou problème de format"}), 400
@@ -190,7 +190,7 @@ def stop_recording():
         print(f"Summary: {summary}")
         
         latest_transcription = get_latest_transcription()
-        return render_template('index.html', transcription_content=latest_transcription)
+        return jsonify({"transcription": latest_transcription, "summary": summary})
     else:
         return jsonify({"status": "no_recording"})
 
