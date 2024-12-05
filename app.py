@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 import os
 import uuid
@@ -7,6 +7,7 @@ import subprocess
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+
 from transcribe import transcribe_audio, extract_audio_from_video
 from recorder import AudioRecorder
 from summarize_transcription import summarize_transcription
@@ -61,43 +62,96 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     """
-    Gère le téléchargement de fichiers audio et vidéo, les transcrit, et renvoie le résultat.
+    Gère le téléchargement de fichiers audio et vidéo, les transcrit, et affiche le résultat.
     """
+    print("Requête d'upload reçue")
     if 'file' not in request.files:
+        print("Aucun fichier dans la requête")
         return jsonify({"error": "Aucun fichier dans la requête"}), 400
     file = request.files['file']
     if file.filename == '':
+        print("Nom de fichier vide")
         return jsonify({"error": "Nom de fichier vide"}), 400
     if file and allowed_file(file.filename):
+        print(f"Fichier accepté : {file.filename}")
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
         file_extension = os.path.splitext(filename)[1].lower()
-        try:
-            if file_extension in ['.mp4', '.mov', '.avi']:
+        if file_extension in ['.mp4', '.mov', '.avi']:
+            try:
                 # Extraire l'audio
                 audio_file = os.path.join(app.config['UPLOAD_FOLDER'], 'extracted_audio.wav')
                 extract_audio_from_video(file_path, audio_file)
                 transcription = transcribe_audio(audio_file)
+                # Supprimer l'audio extrait après transcription
                 os.remove(audio_file)
+                # Supprimer le fichier vidéo original après transcription (optionnel)
                 os.remove(file_path)
-            else:
+            except Exception as e:
+                transcription = f"Erreur lors de la transcription : {e}"
+        else:
+            try:
                 transcription = transcribe_audio(file_path)
+                # Supprimer le fichier audio original après transcription (optionnel)
                 os.remove(file_path)
-
-            # Sauvegarder la transcription dans un fichier
-            transcription_file = save_transcription(transcription)
-
-            # Générer le résumé
-            summary = summarize_transcription(transcription_file)
-
-            return jsonify({"transcription": transcription, "summary": summary}), 200
-        except Exception as e:
-            error_message = f"Erreur lors de la transcription : {e}"
-            return jsonify({"error": error_message}), 500
+            except Exception as e:
+                transcription = f"Erreur lors de la transcription : {e}"
+        
+        # Sauvegarder la transcription dans un fichier
+        transcription_file = save_transcription(transcription)
+        
+        # Générer le résumé
+        summary = summarize_transcription(transcription_file)
+        
+        # Log transcription and summary
+        print(f"Transcription: {transcription}")
+        print(f"Summary: {summary}")
+        
+        latest_transcription = get_latest_transcription()
+        return render_template('index.html', transcription_content=latest_transcription)
     else:
+        print(f"Fichier non autorisé ou problème de format : {file.filename}")
         return jsonify({"error": "Fichier non autorisé ou problème de format"}), 400
+
+@app.route('/send_email', methods=['POST'])
+def send_email():
+    """
+    Envoie le résultat de la transcription par email.
+    """
+    data = request.json
+    email = data.get('email')
+    transcription = data.get('transcription')
+    summary = data.get('summary')
+    
+    if not email:
+        return jsonify({"message": "Email address is required"}), 400
+    
+    try:
+        # Configurez votre serveur SMTP ici
+        smtp_server = "smtp.example.com"
+        smtp_port = 587
+        smtp_user = "your_email@example.com"
+        smtp_password = "your_password"
+        
+        msg = MIMEMultipart()
+        msg['From'] = smtp_user
+        msg['To'] = email
+        msg['Subject'] = "Transcription Results"
+        
+        body = f"Transcription:\n{transcription}\n\nSummary:\n{summary}"
+        msg.attach(MIMEText(body, 'plain'))
+        
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_user, smtp_password)
+        server.sendmail(smtp_user, email, msg.as_string())
+        server.quit()
+        
+        return jsonify({"message": "Email sent successfully"})
+    except Exception as e:
+        return jsonify({"message": f"Failed to send email: {e}"}), 500
 
 @app.route('/start_recording', methods=['POST'])
 def start_recording():
@@ -113,65 +167,46 @@ def start_recording():
 @app.route('/stop_recording', methods=['POST'])
 def stop_recording():
     """
-    Arrête l'enregistrement audio en direct et renvoie la transcription.
+    Arrête l'enregistrement audio en direct et affiche la transcription.
     """
     if recorder.is_recording:
         recorder.stop_recording()
         try:
             # Transcrire l'enregistrement
             transcription = transcribe_audio(recorder.output_path)
+            # Supprimer le fichier enregistré après transcription (optionnel)
             os.remove(recorder.output_path)
-
-            # Sauvegarder la transcription dans un fichier
-            transcription_file = save_transcription(transcription)
-
-            # Générer le résumé
-            summary = summarize_transcription(transcription_file)
-
-            return jsonify({"transcription": transcription, "summary": summary}), 200
         except Exception as e:
-            error_message = f"Erreur lors de la transcription : {e}"
-            return jsonify({"error": error_message}), 500
+            transcription = f"Erreur lors de la transcription : {e}"
+        
+        # Sauvegarder la transcription dans un fichier
+        transcription_file = save_transcription(transcription)
+        
+        # Générer le résumé
+        summary = summarize_transcription(transcription_file)
+        
+        # Log transcription and summary
+        print(f"Transcription: {transcription}")
+        print(f"Summary: {summary}")
+        
+        latest_transcription = get_latest_transcription()
+        return render_template('index.html', transcription_content=latest_transcription)
     else:
-        return jsonify({"status": "no_recording"}), 400
+        return jsonify({"status": "no_recording"})
 
-@app.route('/send_email', methods=['POST'])
-def send_email():
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
     """
-    Envoie le résultat de la transcription par email.
+    Permet de télécharger les fichiers enregistrés ou transcrits.
     """
-    data = request.json
-    email = data.get('email')
-    transcription = data.get('transcription')
-    summary = data.get('summary')
-    
-    if not email:
-        return jsonify({"message": "Adresse email requise"}), 400
-    
-    try:
-        # Configurez votre serveur SMTP ici
-        smtp_server = "smtp.example.com"
-        smtp_port = 587
-        smtp_user = "your_email@example.com"
-        smtp_password = "your_password"
-        
-        msg = MIMEMultipart()
-        msg['From'] = smtp_user
-        msg['To'] = email
-        msg['Subject'] = "Résultats de la Transcription"
-        
-        body = f"Transcription:\n{transcription}\n\nRésumé:\n{summary}"
-        msg.attach(MIMEText(body, 'plain'))
-        
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, email, msg.as_string())
-        server.quit()
-        
-        return jsonify({"message": "Email envoyé avec succès"})
-    except Exception as e:
-        return jsonify({"message": f"Échec de l'envoi de l'email : {e}"}), 500
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/health')
+def health():
+    """
+    Route de vérification de santé de l'application.
+    """
+    return "L'application fonctionne correctement."
 
 @app.route('/check_internet')
 def check_internet():
@@ -195,13 +230,6 @@ def summarize():
         return jsonify({"summary": summary})
     except Exception as e:
         return jsonify({"error": f"Erreur lors du résumé : {e}"}), 500
-
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    """
-    Permet de télécharger les fichiers enregistrés ou transcrits.
-    """
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
