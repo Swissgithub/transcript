@@ -178,7 +178,12 @@
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur de réponse du serveur');
+                }
+                return response.json();
+            })
             .then(data => {
                 uploadButton.disabled = false;
                 recordButton.disabled = false;
@@ -188,7 +193,7 @@
                 if (data.transcription && data.summary) {
                     displayResults(data.transcription, data.summary);
                 } else {
-                    alert("Erreur lors de la transcription.");
+                    alert("Erreur lors de la transcription. Veuillez vérifier le fichier et réessayer.");
                 }
             })
             .catch(() => {
@@ -227,8 +232,15 @@
 
             loader.style.display = 'block';
 
-            fetch('/stop_recording', { method: 'POST' })
-                .then(response => response.json())
+            fetch('/stop_recording', {
+                method: 'POST'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur de réponse du serveur');
+                }
+                return response.json();
+            })
                 .then(data => {
                     loader.style.display = 'none';
                     stopButton.disabled = true;
