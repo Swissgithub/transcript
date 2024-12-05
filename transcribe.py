@@ -66,11 +66,15 @@ def extract_audio_from_video(video_path, audio_path):
     Ensuite, convertit l'audio extrait en format compatible.
     """
     try:
+        print(f"Extraction de l'audio du fichier vidéo : {video_path}")
         # Extraire l'audio avec moviepy
         video = VideoFileClip(video_path)
         video.audio.write_audiofile(audio_path)
+        print(f"Audio extrait et sauvegardé dans : {audio_path}")
         
         # Convertir l'audio extrait
         convert_audio(audio_path, audio_path, samp_rate=16000)
+        print(f"Audio converti avec succès : {audio_path}")
     except Exception as e:
         print(f"Erreur lors de l'extraction de l'audio de {video_path} : {e}")
+        raise e
