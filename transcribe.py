@@ -27,12 +27,13 @@ def convert_audio(file_path, target_path, samp_rate=16000):
     Utilise ffmpeg pour la conversion.
     """
     try:
-        subprocess.run([
+        result = subprocess.run([
             'ffmpeg', '-y', '-i', file_path,
             '-ac', '1',                # Mono
             '-ar', str(samp_rate),     # Fréquence d'échantillonnage
             target_path
         ], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(result.stdout.decode())
     except subprocess.CalledProcessError as e:
         print(f"Erreur lors de la conversion de l'audio : {e.stderr.decode()}")
         raise e
