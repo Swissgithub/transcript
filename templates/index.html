@@ -1,46 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assistant de Transcription Audio</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
         }
         h1 {
             color: #333;
-            margin-bottom: 30px;
+            text-align: center;
+            margin-top: 30px;
+            font-size: 2em;
         }
         .container {
-            max-width: 800px;
-            margin: 0 auto;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .section {
-            margin-bottom: 40px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            margin-bottom: 30px;
             padding: 20px;
-            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         .card-title {
-            font-size: 1.5em;
-            margin-bottom: 20px;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            color: #333;
         }
         .form-control {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 8px;
+            font-size: 1em;
         }
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             color: white;
             border: none;
             cursor: pointer;
-            font-size: 16px;
-            border-radius: 4px;
-            margin-right: 10px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
         }
         .btn-primary {
             background-color: #007bff;
@@ -54,45 +66,37 @@
         .btn-success:hover {
             background-color: #218838;
         }
-        .btn-warning {
-            background-color: #ffc107;
-        }
-        .btn-warning:hover {
-            background-color: #e0a800;
-        }
         .btn-danger {
             background-color: #dc3545;
         }
         .btn-danger:hover {
             background-color: #c82333;
         }
-        .btn-secondary {
-            background-color: #6c757d;
-        }
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
         .btn:disabled {
             background-color: #ccc;
             cursor: not-allowed;
         }
+        #loading-icon {
+            display: none;
+            margin-left: 10px;
+        }
         #message {
-            margin-top: 20px;
+            margin-top: 15px;
             font-size: 1.2em;
             color: #333;
         }
         #connection-status {
             margin-top: 20px;
-            font-size: 1.2em;
             display: flex;
             align-items: center;
+            font-size: 1.2em;
         }
         #connection-status span {
             margin-left: 10px;
         }
         .status-dot {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             display: inline-block;
         }
@@ -104,18 +108,30 @@
         }
         #transcription, #fileTranscription, #generatedFileContent {
             margin-top: 20px;
-            font-size: 1.2em;
+            font-size: 1.1em;
             color: #333;
             white-space: pre-wrap;
+            padding: 15px;
+            background-color: #f4f4f9;
             border: 2px solid #007bff;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
+
     <div class="container">
         <h1>Assistant de Transcription Audio</h1>
 
@@ -124,7 +140,7 @@
             <span id="status-text">Checking server connection...</span>
         </div>
 
-        <div class="section card">
+        <div class="section">
             <div class="card-body">
                 <h2 class="card-title">Télécharger un fichier audio ou vidéo</h2>
                 <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" onsubmit="handleUpload(event)">
@@ -132,13 +148,14 @@
                         <input class="form-control" type="file" name="file" accept=".wav,.mp3,.mp4,.mov,.avi" required>
                     </div>
                     <input id="uploadButton" type="submit" value="Transcrire" class="btn btn-primary">
+                    <span id="loading-icon" class="spinner"></span>
                 </form>
                 <div id="uploadMessage"></div>
                 <div id="fileTranscription" style="display: none;"></div>
             </div>
         </div>
 
-        <div class="section card">
+        <div class="section">
             <div class="card-body">
                 <h2 class="card-title">Enregistrer un audio en direct</h2>
                 <button id="recordButton" class="btn btn-success" onclick="startRecording(event)">Démarrer l'enregistrement</button>
@@ -147,21 +164,24 @@
             </div>
         </div>
 
-        <div class="section card">
+        <div class="section">
             <div class="card-body">
                 <h2 class="card-title">Contenu du fichier généré</h2>
                 <div id="generatedFileContent">Le contenu du fichier sera affiché ici.</div>
             </div>
         </div>
     </div>
+
     <script>
         function handleUpload(event) {
             event.preventDefault();
             const uploadButton = document.getElementById('uploadButton');
+            const loadingIcon = document.getElementById('loading-icon');
             const uploadMessage = document.getElementById('uploadMessage');
-            const recordButton = document.getElementById('recordButton'); // Get the record button
+            const recordButton = document.getElementById('recordButton');
             uploadButton.disabled = true;
-            recordButton.disabled = true; // Disable the record button
+            recordButton.disabled = true;
+            loadingIcon.style.display = 'inline-block'; // Show loading spinner
             uploadMessage.textContent = "Transcription en cours...";
             const formData = new FormData(event.target);
             fetch('/upload', {
@@ -171,7 +191,8 @@
             .then(response => response.json())
             .then(data => {
                 uploadButton.disabled = false;
-                recordButton.disabled = false; // Re-enable the record button
+                recordButton.disabled = false;
+                loadingIcon.style.display = 'none'; // Hide loading spinner
                 if (data.transcription) {
                     uploadMessage.textContent = "Transcription terminée.";
                     fetch('/uploads/current_transcription.txt')
@@ -190,13 +211,14 @@
             })
             .catch(() => {
                 uploadButton.disabled = false;
-                recordButton.disabled = false; // Re-enable the record button
+                recordButton.disabled = false;
+                loadingIcon.style.display = 'none';
                 uploadMessage.textContent = "Erreur lors de la transcription.";
             });
         }
 
         function startRecording(event) {
-            event.preventDefault(); // Empêche le rechargement de la page
+            event.preventDefault();
             const recordButton = document.getElementById('recordButton');
             const stopButton = document.getElementById('stopButton');
             const message = document.getElementById('message');
@@ -210,7 +232,7 @@
         }
 
         function stopRecording(event) {
-            event.preventDefault(); // Empêche le rechargement de la page
+            event.preventDefault();
             const recordButton = document.getElementById('recordButton');
             const stopButton = document.getElementById('stopButton');
             const message = document.getElementById('message');
