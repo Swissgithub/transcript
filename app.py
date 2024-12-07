@@ -1,3 +1,4 @@
+import logging
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
 from werkzeug.utils import secure_filename
 import os
@@ -13,6 +14,10 @@ from recorder import AudioRecorder
 from summarize_transcription import summarize_transcription
 
 app = Flask(__name__)
+
+# Configure logging
+logging.basicConfig(filename='flask_app.log', level=logging.DEBUG, 
+                    format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
 # Configuration des dossiers
 UPLOAD_FOLDER = 'uploads'
@@ -64,16 +69,16 @@ def upload_file():
     """
     Gère le téléchargement de fichiers audio et vidéo, les transcrit, et affiche le résultat.
     """
-    print("Requête d'upload reçue")
+    app.logger.debug("Requête d'upload reçue")
     if 'file' not in request.files:
-        print("Aucun fichier dans la requête")
+        app.logger.error("Aucun fichier dans la requête")
         return jsonify({"error": "Aucun fichier dans la requête"}), 400
     file = request.files['file']
     if file.filename == '':
-        print("Nom de fichier vide")
+        app.logger.error("Nom de fichier vide")
         return jsonify({"error": "Nom de fichier vide"}), 400
     if file and allowed_file(file.filename):
-        print(f"Fichier accepté : {file.filename}")
+        app.logger.debug(f"Fichier accepté : {file.filename}")
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
@@ -82,28 +87,28 @@ def upload_file():
         if file_extension in ['.mp4', '.mov', '.avi']:
             try:
                 # Extraire l'audio
-                print(f"Extraction de l'audio du fichier vidéo : {file_path}")
+                app.logger.debug(f"Extraction de l'audio du fichier vidéo : {file_path}")
                 audio_file = os.path.join(app.config['UPLOAD_FOLDER'], 'extracted_audio.wav')
                 extract_audio_from_video(file_path, audio_file)
-                print(f"Audio extrait avec succès : {audio_file}")
+                app.logger.debug(f"Audio extrait avec succès : {audio_file}")
                 transcription = transcribe_audio(audio_file)
-                print(f"Transcription réussie : {transcription}")
+                app.logger.debug(f"Transcription réussie : {transcription}")
                 # Supprimer l'audio extrait après transcription
                 os.remove(audio_file)
                 # Supprimer le fichier vidéo original après transcription (optionnel)
                 os.remove(file_path)
             except Exception as e:
                 transcription = f"Erreur lors de la transcription : {e}"
-                print(transcription)
+                app.logger.error(transcription)
         else:
             try:
                 transcription = transcribe_audio(file_path)
-                print(f"Transcription réussie : {transcription}")
+                app.logger.debug(f"Transcription réussie : {transcription}")
                 # Supprimer le fichier audio original après transcription (optionnel)
                 os.remove(file_path)
             except Exception as e:
                 transcription = f"Erreur lors de la transcription : {e}"
-                print(transcription)
+                app.logger.error(transcription)
         
         # Sauvegarder la transcription dans un fichier
         transcription_file = save_transcription(transcription)
@@ -112,13 +117,13 @@ def upload_file():
         summary = summarize_transcription(transcription_file)
         
         # Log transcription and summary
-        print(f"Transcription: {transcription}")
-        print(f"Summary: {summary}")
+        app.logger.debug(f"Transcription: {transcription}")
+        app.logger.debug(f"Summary: {summary}")
         
         latest_transcription = get_latest_transcription()
         return jsonify({"transcription": latest_transcription, "summary": summary})
     else:
-        print(f"Fichier non autorisé ou problème de format : {file.filename}")
+        app.logger.error(f"Fichier non autorisé ou problème de format : {file.filename}")
         return jsonify({"error": "Fichier non autorisé ou problème de format"}), 400
 
 @app.route('/send_email', methods=['POST'])
@@ -192,8 +197,8 @@ def stop_recording():
         summary = summarize_transcription(transcription_file)
         
         # Log transcription and summary
-        print(f"Transcription: {transcription}")
-        print(f"Summary: {summary}")
+        app.logger.debug(f"Transcription: {transcription}")
+        app.logger.debug(f"Summary: {summary}")
         
         latest_transcription = get_latest_transcription()
         return jsonify({"transcription": latest_transcription, "summary": summary})
