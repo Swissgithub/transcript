@@ -144,7 +144,6 @@
                 <button id="recordButton" class="btn btn-success" onclick="startRecording(event)">Démarrer l'enregistrement</button>
                 <button id="stopButton" class="btn btn-danger" onclick="stopRecording(event)" disabled>Stop l'enregistrement</button>
                 <div id="message"></div>
-                <div id="transcription"></div>
             </div>
         </div>
 
@@ -215,7 +214,6 @@
             const recordButton = document.getElementById('recordButton');
             const stopButton = document.getElementById('stopButton');
             const message = document.getElementById('message');
-            const transcriptionDiv = document.getElementById('transcription');
             stopButton.disabled = true;
             message.textContent = "Transcription en cours...";
             fetch('/stop_recording', { method: 'POST' })
@@ -224,7 +222,16 @@
                     recordButton.disabled = false;
                     if (data.transcription) {
                         message.textContent = "Enregistrement arrêté. Transcription créée.";
-                        transcriptionDiv.textContent = data.transcription;
+                        fetch('/uploads/current_transcription.txt')
+                            .then(response => response.text())
+                            .then(text => {
+                                const generatedFileContent = document.getElementById('generatedFileContent');
+                                generatedFileContent.textContent = text;
+                            })
+                            .catch(() => {
+                                const generatedFileContent = document.getElementById('generatedFileContent');
+                                generatedFileContent.textContent = "Erreur lors de la lecture du fichier généré.";
+                            });
                     } else {
                         message.textContent = "Aucun enregistrement en cours.";
                     }
