@@ -84,9 +84,7 @@ def upload_file():
                 # Extraire l'audio
                 audio_file = os.path.join(app.config['UPLOAD_FOLDER'], 'extracted_audio.wav')
                 extract_audio_from_video(file_path, audio_file)
-                transcription = transcribe_audio(file_path)
-                # Générer le résumé
-                summary = summarize_transcription(transcription_file)
+                transcription = transcribe_audio(audio_file)
                 # Supprimer l'audio extrait après transcription
                 os.remove(audio_file)
                 # Supprimer le fichier vidéo original après transcription (optionnel)
