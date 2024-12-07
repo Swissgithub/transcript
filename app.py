@@ -102,7 +102,7 @@ def upload_file():
         # Sauvegarder la transcription dans un fichier
         transcription_file = save_transcription(transcription)
         
-        # Générer le résumé
+        # Ensure summarization is called for MP4 files
         summary = summarize_transcription(transcription_file)
         
         # Log transcription and summary
