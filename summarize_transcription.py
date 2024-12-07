@@ -9,6 +9,10 @@ def summarize_transcription(file_path):
         with open(file_path, 'r') as file:
             transcription_text = file.read()
         
+        # Imprimer le texte de la transcription pour le diagnostic
+        print("Texte de la transcription avant summarization :")
+        print(transcription_text)
+        
         # Utiliser l'API locale LLaMA pour générer le résumé
         summary = summarize_with_llama(transcription_text)
         
