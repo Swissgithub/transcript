@@ -28,7 +28,7 @@ def summarize_with_llama(transcription_text):
     url = "http://localhost:11434/api/generate"
     payload = {
         "model": "tinyllama",
-        "prompt": f"Tell me in one sentence what is the purpose of this text and answer the same language as the text: {transcription_text}",
+        "prompt": f"Tell me in one sentence what is the purpose of this text and answer in the same language: {transcription_text}",
         "stream": False
     }
     response = requests.post(url, json=payload)
