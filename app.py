@@ -82,22 +82,28 @@ def upload_file():
         if file_extension in ['.mp4', '.mov', '.avi']:
             try:
                 # Extraire l'audio
+                print(f"Extraction de l'audio du fichier vidéo : {file_path}")
                 audio_file = os.path.join(app.config['UPLOAD_FOLDER'], 'extracted_audio.wav')
                 extract_audio_from_video(file_path, audio_file)
+                print(f"Audio extrait avec succès : {audio_file}")
                 transcription = transcribe_audio(audio_file)
+                print(f"Transcription réussie : {transcription}")
                 # Supprimer l'audio extrait après transcription
                 os.remove(audio_file)
                 # Supprimer le fichier vidéo original après transcription (optionnel)
                 os.remove(file_path)
             except Exception as e:
                 transcription = f"Erreur lors de la transcription : {e}"
+                print(transcription)
         else:
             try:
                 transcription = transcribe_audio(file_path)
+                print(f"Transcription réussie : {transcription}")
                 # Supprimer le fichier audio original après transcription (optionnel)
                 os.remove(file_path)
             except Exception as e:
                 transcription = f"Erreur lors de la transcription : {e}"
+                print(transcription)
         
         # Sauvegarder la transcription dans un fichier
         transcription_file = save_transcription(transcription)
