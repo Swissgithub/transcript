@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistant de Transcription Audio</title>
+    <title>Audio Transcription Assistant</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -133,7 +133,7 @@
 <body>
 
     <div class="container">
-        <h1>Assistant de Transcription Audio</h1>
+        <h1>Audio Transcription Assistant</h1>
 
         <div id="connection-status">
             <div id="status-dot" class="status-dot"></div>
@@ -142,12 +142,12 @@
 
         <div class="section">
             <div class="card-body">
-                <h2 class="card-title">Télécharger un fichier audio ou vidéo</h2>
+                <h2 class="card-title">Upload an audio or video file</h2>
                 <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" onsubmit="handleUpload(event)">
                     <div class="mb-3">
                         <input class="form-control" type="file" name="file" accept=".wav,.mp3,.mp4,.mov,.avi" required>
                     </div>
-                    <input id="uploadButton" type="submit" value="Transcrire" class="btn btn-primary">
+                    <input id="uploadButton" type="submit" value="Transcribe" class="btn btn-primary">
                     <span id="loading-icon" class="spinner"></span>
                 </form>
                 <div id="uploadMessage"></div>
@@ -157,17 +157,17 @@
 
         <div class="section">
             <div class="card-body">
-                <h2 class="card-title">Enregistrer un audio en direct</h2>
-                <button id="recordButton" class="btn btn-success" onclick="startRecording(event)">Démarrer l'enregistrement</button>
-                <button id="stopButton" class="btn btn-danger" onclick="stopRecording(event)" disabled>Stop l'enregistrement</button>
+                <h2 class="card-title">Record live audio</h2>
+                <button id="recordButton" class="btn btn-success" onclick="startRecording(event)">Start recording</button>
+                <button id="stopButton" class="btn btn-danger" onclick="stopRecording(event)" disabled>Stop recording</button>
                 <div id="message"></div>
             </div>
         </div>
 
         <div class="section">
             <div class="card-body">
-                <h2 class="card-title">Contenu du fichier généré</h2>
-                <div id="generatedFileContent">Le contenu du fichier sera affiché ici.</div>
+                <h2 class="card-title">Generated file content</h2>
+                <div id="generatedFileContent">The content of the file will be displayed here.</div>
             </div>
         </div>
     </div>
@@ -182,7 +182,7 @@
             uploadButton.disabled = true;
             recordButton.disabled = true;
             loadingIcon.style.display = 'inline-block'; // Show loading spinner
-            uploadMessage.textContent = "Transcription en cours...";
+            uploadMessage.textContent = "Transcription in progress...";
             const formData = new FormData(event.target);
             fetch('/upload', {
                 method: 'POST',
@@ -194,7 +194,7 @@
                 recordButton.disabled = false;
                 loadingIcon.style.display = 'none'; // Hide loading spinner
                 if (data.transcription) {
-                    uploadMessage.textContent = "Transcription terminée.";
+                    uploadMessage.textContent = "Transcription completed.";
                     fetch('/uploads/current_transcription.txt')
                         .then(response => response.text())
                         .then(text => {
@@ -203,17 +203,17 @@
                         })
                         .catch(() => {
                             const generatedFileContent = document.getElementById('generatedFileContent');
-                            generatedFileContent.textContent = "Erreur lors de la lecture du fichier généré.";
+                            generatedFileContent.textContent = "Error reading the generated file.";
                         });
                 } else {
-                    uploadMessage.textContent = "Erreur lors de la transcription.";
+                    uploadMessage.textContent = "Error during transcription.";
                 }
             })
             .catch(() => {
                 uploadButton.disabled = false;
                 recordButton.disabled = false;
                 loadingIcon.style.display = 'none';
-                uploadMessage.textContent = "Erreur lors de la transcription.";
+                uploadMessage.textContent = "Error during transcription.";
             });
         }
 
@@ -227,7 +227,7 @@
                 .then(data => {
                     recordButton.disabled = true;
                     stopButton.disabled = false;
-                    message.textContent = "Enregistrement en cours...";
+                    message.textContent = "Recording in progress...";
                 });
         }
 
@@ -237,13 +237,13 @@
             const stopButton = document.getElementById('stopButton');
             const message = document.getElementById('message');
             stopButton.disabled = true;
-            message.textContent = "Transcription en cours...";
+            message.textContent = "Transcription in progress...";
             fetch('/stop_recording', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     recordButton.disabled = false;
                     if (data.transcription) {
-                        message.textContent = "Enregistrement arrêté. Transcription créée.";
+                        message.textContent = "Recording stopped. Transcription created.";
                         fetch('/uploads/current_transcription.txt')
                             .then(response => response.text())
                             .then(text => {
@@ -252,10 +252,10 @@
                             })
                             .catch(() => {
                                 const generatedFileContent = document.getElementById('generatedFileContent');
-                                generatedFileContent.textContent = "Erreur lors de la lecture du fichier généré.";
+                                generatedFileContent.textContent = "Error reading the generated file.";
                             });
                     } else {
-                        message.textContent = "Aucun enregistrement en cours.";
+                        message.textContent = "No recording in progress.";
                     }
                 });
         }
