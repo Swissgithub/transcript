@@ -6,3 +6,6 @@ whisper
 moviepy
 tkinter
 pyaudio
+torch
+torchaudio
+# Add any additional dependencies for LLaMA if needed
