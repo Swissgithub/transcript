@@ -32,7 +32,7 @@ def generate_tasks_with_llama(transcription_text):
     url = "http://localhost:11434/api/generate"
     payload = {
         "model": "tinyllama",
-        "prompt": f"Please analyze the following text and identify only the tasks that must be performed after the transcription is complete, not actions currently taking place. A 'task' is a concrete directive telling someone what to do, such as 'You must do X' or 'Prepare Y.' Questions, factual statements, or descriptions are not tasks. Don't imagine tasks, juste take these you find in text. A task must be described very shortly and specify which problem it addresses (in few words). If no tasks are detected, respond with: 'No tasks detected.' and nothing else. I want only the conclusion : {transcription_text}",
+        "prompt": f"Please analyze the following text and identify only the tasks that must be performed after the transcription is complete, not actions currently taking place. A 'task' is a concrete directive telling someone what to do, such as 'You must do X' or 'Prepare Y.' Questions, factual statements, or descriptions are not tasks. Don't imagine tasks, juste take these you find in text. A task must be described very shortly and specify which problem it addresses (in few words). If no tasks are detected, respond with: 'No tasks detected.' and nothing else. Very short answer. : {transcription_text}",
         "stream": False
     }
     try:
