@@ -250,7 +250,6 @@
             event.preventDefault();
             const recordButton = document.getElementById('recordButton');
             const stopButton = document.getElementById('stopButton');
-            const uploadButton = document.getElementById('uploadButton');
             const message = document.getElementById('message');
             stopButton.disabled = true;
             message.textContent = "Transcription in progress...";
@@ -258,7 +257,6 @@
                 .then(response => response.json())
                 .then(data => {
                     recordButton.disabled = true;
-                    uploadButton.disabled = false; // Re-enable the transcribe button
                     if (data.transcription) {
                         message.textContent = "Recording stopped. Transcription created.";
                         fetch('/uploads/current_transcription.txt')
