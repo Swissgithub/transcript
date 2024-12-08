@@ -18,7 +18,7 @@ def generate_todo_tasks(file_path):
         
         # Append the tasks to the transcription file
         with open(file_path, 'a') as file:
-            file.write("\n\n-----------------\nTâches à faire :\n")
+            file.write("\n\n-----------------\nIdentified tasks :\n")
             file.write(tasks)
         
         print("Tâches ajoutées au fichier de transcription.")
@@ -32,7 +32,7 @@ def generate_tasks_with_llama(transcription_text):
     url = "http://localhost:11434/api/generate"
     payload = {
         "model": "tinyllama",
-        "prompt": f"Please analyze the following text and identify any explicit tasks that need to be performed after the transcription is complete. A 'task' is a clear directive instructing someone to take action, such as 'You must do X' or 'Prepare Y.' Exclude questions, factual statements, or descriptions, and do not infer tasks that are not directly stated. If no explicit tasks are present in the text, respond with: 'No tasks detected.' : {transcription_text}",
+        "prompt": f"Analyze the following text step by step to identify any explicit tasks. If none are found, respond with: 'No tasks detected.' : {transcription_text}",
         "stream": False
     }
     try:
