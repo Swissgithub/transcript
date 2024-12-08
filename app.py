@@ -12,6 +12,7 @@ from email.mime.multipart import MIMEMultipart
 from transcribe import transcribe_audio, extract_audio_from_video
 from recorder import AudioRecorder
 from summarize_transcription import summarize_transcription
+from todo_tasks import generate_todo_tasks
 
 app = Flask(__name__)
 
@@ -116,6 +117,9 @@ def upload_file():
         # Ensure summarization is called for MP4 files
         summary = summarize_transcription(transcription_file)
         
+        # Generate todo tasks
+        generate_todo_tasks(transcription_file)
+        
         # Log transcription and summary
         app.logger.debug(f"Transcription: {transcription}")
         app.logger.debug(f"Summary: {summary}")
@@ -195,6 +199,9 @@ def stop_recording():
         
         # Générer le résumé
         summary = summarize_transcription(transcription_file)
+        
+        # Generate todo tasks
+        generate_todo_tasks(transcription_file)
         
         # Log transcription and summary
         app.logger.debug(f"Transcription: {transcription}")
