@@ -173,6 +173,15 @@
 
         <div class="section">
             <div class="card-body">
+                <h2 class="card-title">Send Transcription via Email</h2>
+                <input id="emailInput" type="email" class="form-control" placeholder="Enter email address" required>
+                <button id="sendEmailButton" class="btn btn-primary" onclick="sendEmail()">Send Email</button>
+                <div id="emailMessage"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="card-body">
                 <h2 class="card-title">Generated file content</h2>
                 <div id="generatedFileContent">The content of the file will be displayed here.</div>
             </div>
@@ -273,6 +282,30 @@
                         message.textContent = "No recording in progress.";
                     }
                 });
+        }
+
+        function sendEmail() {
+            const emailInput = document.getElementById('emailInput');
+            const emailMessage = document.getElementById('emailMessage');
+            const email = emailInput.value;
+            if (!email) {
+                emailMessage.textContent = "Please enter a valid email address.";
+                return;
+            }
+            fetch('/send_email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                emailMessage.textContent = data.message;
+            })
+            .catch(() => {
+                emailMessage.textContent = "Error sending email.";
+            });
         }
 
         function updateServerConnectionStatus() {
