@@ -35,12 +35,18 @@ def summarize_with_llama(transcription_text):
         "prompt": f"Tell me in one sentence what is the purpose of this text: {transcription_text}",
         "stream": False
     }
-    response = requests.post(url, json=payload)
-    
-    if response.status_code == 200:
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()  # Lève une exception pour les codes d'erreur HTTP
+        print(f"Statut de la réponse : {response.status_code}")
+        print(f"Contenu de la réponse : {response.text}")
         return response.json().get("response", "Erreur : réponse vide de l'API")
-    else:
-        return f"Erreur : {response.status_code}, {response.text}"
+    except requests.exceptions.RequestException as e:
+        print(f"Une erreur s'est produite lors de la requête : {e}")
+        return f"Erreur lors de la requête : {e}"
+    except ValueError as e:
+        print(f"Erreur lors du traitement de la réponse JSON : {e}")
+        return f"Erreur de traitement JSON : {e}"
 
 def get_latest_transcription_file(directory):
     """
