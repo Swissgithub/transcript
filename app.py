@@ -249,6 +249,20 @@ def summarize():
     except Exception as e:
         return jsonify({"error": f"Erreur lors du résumé : {e}"}), 500
 
+@app.route('/clear_uploads', methods=['POST'])
+def clear_uploads():
+    """
+    Supprime tous les fichiers dans le dossier des uploads.
+    """
+    try:
+        for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+        return jsonify({"message": "Uploads cleared successfully"})
+    except Exception as e:
+        return jsonify({"error": f"Erreur lors de la suppression des fichiers : {e}"}), 500
+
 @app.errorhandler(413)
 def request_entity_too_large(error):
     return "Fichier trop volumineux. La taille maximale autorisée est de 100MB.", 413

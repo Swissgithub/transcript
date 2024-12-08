@@ -172,7 +172,7 @@
         </div>
 
         <div class="section">
-            <button id="newTranscriptionButton" class="btn btn-secondary" onclick="location.reload()" style="display: none;">New transcription</button>
+            <button id="newTranscriptionButton" class="btn btn-secondary" onclick="location.reload()">New transcription</button>
         </div>
     </div>
 
@@ -206,7 +206,6 @@
                         .then(text => {
                             const generatedFileContent = document.getElementById('generatedFileContent');
                             generatedFileContent.textContent = text;
-                            document.getElementById('newTranscriptionButton').style.display = 'block';
                         })
                         .catch(() => {
                             const generatedFileContent = document.getElementById('generatedFileContent');
@@ -256,7 +255,6 @@
                             .then(text => {
                                 const generatedFileContent = document.getElementById('generatedFileContent');
                                 generatedFileContent.textContent = text;
-                                document.getElementById('newTranscriptionButton').style.display = 'block';
                             })
                             .catch(() => {
                                 const generatedFileContent = document.getElementById('generatedFileContent');
@@ -291,7 +289,21 @@
                 });
         }
 
-        window.addEventListener('load', updateServerConnectionStatus);
+        function clearUploads() {
+            fetch('/clear_uploads', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                })
+                .catch(error => {
+                    console.error('Error clearing uploads:', error);
+                });
+        }
+
+        window.addEventListener('load', () => {
+            updateServerConnectionStatus();
+            clearUploads();
+        });
     </script>
 </body>
 </html>
