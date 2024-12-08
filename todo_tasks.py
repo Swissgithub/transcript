@@ -32,7 +32,7 @@ def generate_tasks_with_llama(transcription_text):
     url = "http://localhost:11434/api/generate"
     payload = {
         "model": "tinyllama",
-        "prompt": f"Please analyze the following text and identify only the tasks that must be performed after the transcription is complete, not actions currently taking place. A 'task' is a concrete directive telling someone what to do, such as 'You must do X' or 'Prepare Y.' Questions, factual statements, or descriptions are not tasks. Don't imagine tasks, juste take these you find in text. A task must be described very shortly and specify which problem it addresses (in few words). If no tasks are detected, respond with: 'No tasks detected.' and nothing else. Very short answer. : {transcription_text}",
+        "prompt": f"Please analyze the following text and identify any explicit tasks that need to be performed after the transcription is complete. A 'task' is a clear directive instructing someone to take action, such as 'You must do X' or 'Prepare Y.' Exclude questions, factual statements, or descriptions, and do not infer tasks that are not directly stated. If no explicit tasks are present in the text, respond with: 'No tasks detected.' : {transcription_text}",
         "stream": False
     }
     try:
