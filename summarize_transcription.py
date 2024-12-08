@@ -29,9 +29,6 @@ def summarize_with_llama(transcription_text):
     """
     Utilise l'API locale LLaMA pour générer un résumé du texte transcrit.
     """
-    # Échapper les apostrophes
-    transcription_text = transcription_text.replace("'", "\\'")
-
     url = "http://localhost:11434/api/generate"
     payload = {
         "model": "tinyllama",
