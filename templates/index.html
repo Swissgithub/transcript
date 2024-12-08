@@ -170,6 +170,10 @@
                 <div id="generatedFileContent">The content of the file will be displayed here.</div>
             </div>
         </div>
+
+        <div class="section">
+            <button id="newTranscriptionButton" class="btn btn-secondary" onclick="location.reload()" style="display: none;">New transcription</button>
+        </div>
     </div>
 
     <script>
@@ -179,6 +183,7 @@
             const loadingIcon = document.getElementById('loading-icon');
             const uploadMessage = document.getElementById('uploadMessage');
             const recordButton = document.getElementById('recordButton');
+            const stopButton = document.getElementById('stopButton');
             uploadButton.disabled = true;
             recordButton.disabled = true;
             loadingIcon.style.display = 'inline-block'; // Show loading spinner
@@ -190,8 +195,9 @@
             })
             .then(response => response.json())
             .then(data => {
-                uploadButton.disabled = false;
-                recordButton.disabled = false;
+                uploadButton.disabled = true;
+                recordButton.disabled = true;
+                stopButton.disabled = true;
                 loadingIcon.style.display = 'none'; // Hide loading spinner
                 if (data.transcription) {
                     uploadMessage.textContent = "Transcription completed.";
@@ -200,6 +206,7 @@
                         .then(text => {
                             const generatedFileContent = document.getElementById('generatedFileContent');
                             generatedFileContent.textContent = text;
+                            document.getElementById('newTranscriptionButton').style.display = 'block';
                         })
                         .catch(() => {
                             const generatedFileContent = document.getElementById('generatedFileContent');
@@ -241,7 +248,7 @@
             fetch('/stop_recording', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
-                    recordButton.disabled = false;
+                    recordButton.disabled = true;
                     if (data.transcription) {
                         message.textContent = "Recording stopped. Transcription created.";
                         fetch('/uploads/current_transcription.txt')
@@ -249,6 +256,7 @@
                             .then(text => {
                                 const generatedFileContent = document.getElementById('generatedFileContent');
                                 generatedFileContent.textContent = text;
+                                document.getElementById('newTranscriptionButton').style.display = 'block';
                             })
                             .catch(() => {
                                 const generatedFileContent = document.getElementById('generatedFileContent');
