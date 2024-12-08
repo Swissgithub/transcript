@@ -32,7 +32,7 @@ def generate_tasks_with_llama(transcription_text):
     url = "http://localhost:11434/api/generate"
     payload = {
         "model": "tinyllama",
-        "prompt": f"Please analyze the following text and identify any explicit tasks that need to be performed. A task is a clear directive indicating an action to be taken, such as 'You must do X' or 'Prepare Y.' If no tasks are detected, respond only with: 'No tasks detected.' : {transcription_text}",
+        "prompt": f"In the following text, can you identify any tasks that need to be performed as mentioned? If so, please provide a brief list; if not, simply state, very briefly, that there are no tasks to be performed. Text : {transcription_text}",
         "stream": False
     }
     try:
