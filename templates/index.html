@@ -9,110 +9,88 @@
             --primary-color: #007bff;
             --secondary-color: #28a745;
             --danger-color: #dc3545;
-            --background-color: #f4f4f9;
+            --bg-color: #f4f4f9;
             --text-color: #333;
-            --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            --border-radius: 10px;
-            --font-family: 'Arial', sans-serif;
+            --radius: 8px;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --font: 'Arial', sans-serif;
         }
 
         body {
-            font-family: var(--font-family);
+            font-family: var(--font);
             margin: 0;
-            padding: 0;
-            background-color: var(--background-color);
+            background-color: var(--bg-color);
         }
 
         h1 {
-            color: var(--primary-color);
             text-align: center;
-            margin: 20px 0;
-            font-size: 2.5em;
+            color: var(--primary-color);
+            margin: 15px 0;
+            font-size: 2em;
         }
 
         .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            max-width: 600px;
+            margin: 10px auto;
+            padding: 15px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
         }
 
         .section {
-            margin-bottom: 20px;
-            padding: 20px;
-            background-color: var(--background-color);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            margin-bottom: 15px;
         }
 
-        .card-title {
-            font-size: 1.8em;
-            color: var(--text-color);
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .title {
+            font-size: 1.4em;
             margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .form-control, .btn {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            font-size: 1em;
+            border-radius: var(--radius);
+            box-sizing: border-box;
         }
 
         .form-control {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
             border: 1px solid #ccc;
-            border-radius: var(--border-radius);
-            font-size: 1em;
         }
 
         .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 1em;
-            color: white;
-            text-align: center;
             border: none;
-            border-radius: var(--border-radius);
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            color: white;
         }
 
-        .btn-primary { background-color: var(--primary-color); }
-        .btn-primary:hover { background-color: #0056b3; }
-        .btn-success { background-color: var(--secondary-color); }
-        .btn-success:hover { background-color: #218838; }
-        .btn-danger { background-color: var(--danger-color); }
-        .btn-danger:hover { background-color: #c82333; }
-        .btn-secondary {
-            background-color: var(--primary-color);
-            float: right;
-        }
-        .btn-secondary:hover {
-            background-color: #0056b3;
-        }
-
-        .btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
+        .btn-primary { background: var(--primary-color); }
+        .btn-primary:hover { background: #0056b3; }
+        .btn-success { background: var(--secondary-color); }
+        .btn-success:hover { background: #218838; }
+        .btn-danger { background: var(--danger-color); }
+        .btn-danger:hover { background: #c82333; }
 
         .status-dot {
-            display: inline-block;
             width: 12px;
             height: 12px;
             border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
         }
 
-        .connected { background-color: var(--secondary-color); }
-        .disconnected { background-color: var(--danger-color); }
+        .connected { background: var(--secondary-color); }
+        .disconnected { background: var(--danger-color); }
 
-        #transcription, #fileTranscription, #generatedFileContent {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: var(--background-color);
-            border: 1px solid var(--primary-color);
-            border-radius: var(--border-radius);
-            font-size: 1em;
-            color: var(--text-color);
-            white-space: pre-wrap;
-        }
+        .hidden { display: none; }
 
         .spinner {
             display: inline-block;
@@ -122,11 +100,11 @@
             border-top: 3px solid var(--primary-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            vertical-align: middle;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -135,40 +113,35 @@
         <h1>Audio Transcription Assistant</h1>
 
         <div id="connection-status" class="section">
-            <div class="status-dot disconnected" id="status-dot"></div>
+            <span class="status-dot disconnected" id="status-dot"></span>
             <span id="status-text">Checking server connection...</span>
         </div>
 
         <div class="section">
-            <h2 class="card-title">Upload an audio or video file</h2>
-            <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" onsubmit="handleUpload(event)">
+            <div class="title">Upload File</div>
+            <form id="uploadForm" onsubmit="handleUpload(event)">
                 <input type="file" class="form-control" name="file" accept=".wav,.mp3,.mp4,.mov,.avi" required>
-                <button id="uploadButton" type="submit" class="btn btn-primary">Transcribe</button>
-                <span id="loading-icon" class="spinner" style="display:none;"></span>
+                <button id="uploadButton" class="btn btn-primary" type="submit">Transcribe</button>
+                <span id="loading-icon" class="spinner hidden"></span>
             </form>
             <div id="uploadMessage"></div>
-            <div id="fileTranscription" style="display:none;"></div>
         </div>
 
         <div class="section">
-            <h2 class="card-title">Record live audio</h2>
-            <button id="recordButton" class="btn btn-success" onclick="startRecording()">Start recording</button>
-            <button id="stopButton" class="btn btn-danger" disabled onclick="stopRecording()">Stop recording</button>
+            <div class="title">Live Recording</div>
+            <button id="recordButton" class="btn btn-success" onclick="startRecording()">Start Recording</button>
+            <button id="stopButton" class="btn btn-danger hidden" onclick="stopRecording()">Stop Recording</button>
             <div id="message"></div>
         </div>
 
-        <div class="section">
-            <h2 class="card-title">Generated file content</h2>
-            <div id="generatedFileContent">The content of the file will appear here.</div>
+        <div class="section hidden" id="generated-content-section">
+            <div class="title">Generated File</div>
+            <div id="generatedFileContent">The transcription will appear here.</div>
         </div>
 
-        <div class="section">
-            <button id="newTranscriptionButton" class="btn btn-secondary" onclick="location.reload()">New transcription</button>
-        </div>
-
-        <div class="section">
-            <h2 class="card-title">Send Transcription via Email</h2>
-            <input id="emailInput" type="email" class="form-control" placeholder="Enter email address" required>
+        <div class="section hidden" id="email-section">
+            <div class="title">Send by Email</div>
+            <input id="emailInput" class="form-control" type="email" placeholder="Enter email address">
             <button id="sendEmailButton" class="btn btn-primary" onclick="sendEmail()">Send Email</button>
             <div id="emailMessage"></div>
         </div>
@@ -180,64 +153,87 @@
             const uploadButton = document.getElementById('uploadButton');
             const loadingIcon = document.getElementById('loading-icon');
             const uploadMessage = document.getElementById('uploadMessage');
-            uploadButton.disabled = true;
-            loadingIcon.style.display = 'inline-block';
+            const generatedContent = document.getElementById('generated-content-section');
+            const emailSection = document.getElementById('email-section');
 
-            const formData = new FormData(event.target);
+            uploadButton.disabled = true;
+            loadingIcon.classList.remove('hidden');
 
             fetch('/upload', {
                 method: 'POST',
-                body: formData
+                body: new FormData(event.target)
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
+                loadingIcon.classList.add('hidden');
                 uploadButton.disabled = false;
-                loadingIcon.style.display = 'none';
                 if (data.transcription) {
                     uploadMessage.textContent = "Transcription completed.";
-                    document.getElementById('fileTranscription').textContent = data.transcription;
+                    document.getElementById('generatedFileContent').textContent = data.transcription;
+                    generatedContent.classList.remove('hidden');
+                    emailSection.classList.remove('hidden');
                 } else {
                     uploadMessage.textContent = "Error during transcription.";
                 }
             })
             .catch(() => {
-                uploadButton.disabled = false;
-                loadingIcon.style.display = 'none';
                 uploadMessage.textContent = "Error during upload.";
+                uploadButton.disabled = false;
+                loadingIcon.classList.add('hidden');
             });
         }
 
-        function updateServerConnectionStatus() {
-            const statusDot = document.getElementById('status-dot');
-            const statusText = document.getElementById('status-text');
-
-            fetch('/check_internet')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.internet_access) {
-                        statusDot.classList.remove('disconnected');
-                        statusDot.classList.add('connected');
-                        statusText.textContent = "Server connected to internet";
-                    } else {
-                        statusDot.classList.remove('connected');
-                        statusDot.classList.add('disconnected');
-                        statusText.textContent = "Server not connected to internet";
-                    }
-                })
-                .catch(error => {
-                    statusDot.classList.remove('connected');
-                    statusDot.classList.add('disconnected');
-                    statusText.textContent = "Error checking server connection";
-                    console.error(error);
-                });
+        function startRecording() {
+            document.getElementById('recordButton').classList.add('hidden');
+            document.getElementById('stopButton').classList.remove('hidden');
+            document.getElementById('message').textContent = "Recording started...";
         }
 
-        window.addEventListener('load', updateServerConnectionStatus);
+        function stopRecording() {
+            document.getElementById('recordButton').classList.remove('hidden');
+            document.getElementById('stopButton').classList.add('hidden');
+            document.getElementById('message').textContent = "Recording stopped. Processing transcription...";
+        }
+
+        function sendEmail() {
+            const emailInput = document.getElementById('emailInput');
+            const emailMessage = document.getElementById('emailMessage');
+            if (!emailInput.value) {
+                emailMessage.textContent = "Please provide a valid email address.";
+                return;
+            }
+
+            fetch('/send_email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: emailInput.value })
+            })
+            .then(res => res.json())
+            .then(data => { emailMessage.textContent = data.message; })
+            .catch(() => { emailMessage.textContent = "Failed to send email."; });
+        }
+
+        window.addEventListener('load', () => {
+            fetch('/check_internet')
+                .then(res => res.json())
+                .then(data => {
+                    const statusDot = document.getElementById('status-dot');
+                    const statusText = document.getElementById('status-text');
+                    if (data.internet_access) {
+                        statusDot.classList.replace('disconnected', 'connected');
+                        statusText.textContent = "Server connected.";
+                    } else {
+                        statusDot.classList.replace('connected', 'disconnected');
+                        statusText.textContent = "No internet connection.";
+                    }
+                })
+                .catch(() => {
+                    const statusDot = document.getElementById('status-dot');
+                    const statusText = document.getElementById('status-text');
+                    statusDot.classList.replace('connected', 'disconnected');
+                    statusText.textContent = "Error checking connection.";
+                });
+        });
     </script>
 </body>
 </html>
