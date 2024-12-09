@@ -190,15 +190,43 @@
         }
 
         function startRecording() {
-            document.getElementById('recordButton').classList.add('hidden');
-            document.getElementById('stopButton').classList.remove('hidden');
-            document.getElementById('message').textContent = "Recording started...";
+            fetch('/start_recording', {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "recording_started") {
+                    document.getElementById('recordButton').classList.add('hidden');
+                    document.getElementById('stopButton').classList.remove('hidden');
+                    document.getElementById('message').textContent = "Recording started...";
+                } else if (data.status === "already_recording") {
+                    document.getElementById('message').textContent = "Already recording.";
+                }
+            })
+            .catch(() => {
+                document.getElementById('message').textContent = "Failed to start recording.";
+            });
         }
 
         function stopRecording() {
-            document.getElementById('recordButton').classList.remove('hidden');
-            document.getElementById('stopButton').classList.add('hidden');
-            document.getElementById('message').textContent = "Recording stopped. Processing transcription...";
+            fetch('/stop_recording', {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.transcription) {
+                    document.getElementById('recordButton').classList.remove('hidden');
+                    document.getElementById('stopButton').classList.add('hidden');
+                    document.getElementById('message').textContent = "Recording stopped. Processing transcription...";
+                    document.getElementById('generatedFileContent').textContent = data.transcription;
+                    document.getElementById('generated-content-section').classList.remove('hidden');
+                } else {
+                    document.getElementById('message').textContent = "No recording found.";
+                }
+            })
+            .catch(() => {
+                document.getElementById('message').textContent = "Failed to stop recording.";
+            });
         }
 
         function sendEmail() {
