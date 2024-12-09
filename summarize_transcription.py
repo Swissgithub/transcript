@@ -18,7 +18,7 @@ def summarize_transcription(file_path):
         
         # Append the summary to the transcription file
         with open(file_path, 'a') as file:
-            file.write("\n\n-----------------\nRésumé :\n")
+            file.write("\n\n-----------------\nSummary :\n")
             file.write(summary)
         
         print("Résumé ajouté au fichier de transcription.")

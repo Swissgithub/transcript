@@ -101,6 +101,7 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
             vertical-align: middle;
+            margin-right: 10px; /* Add margin to separate spinner from text */
         }
 
         @keyframes spin {
@@ -127,8 +128,8 @@
                 <input type="file" class="form-control" name="file" accept=".wav,.mp3,.mp4,.mov,.avi" required>
                 <button id="uploadButton" class="btn btn-primary" type="submit">Transcribe</button>
                 <span id="loading-icon" class="spinner hidden"></span>
+                <span id="uploadMessage" style="display: inline-block;"></span>
             </form>
-            <div id="uploadMessage"></div>
         </div>
 
         <div class="section">
@@ -218,9 +219,20 @@
             .catch(() => { emailMessage.textContent = "Failed to send email."; });
         }
 
+        function clearUploads() {
+            fetch('/clear_uploads', {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(data => console.log(data.message))
+            .catch(err => console.error("Failed to clear uploads:", err));
+        }
+
         window.addEventListener('load', () => {
             const loadingIcon = document.getElementById('loading-icon');
             loadingIcon.classList.add('hidden'); // Ensure the loading icon is hidden on page load
+
+            clearUploads(); // Clear uploads on page load
 
             fetch('/check_internet')
                 .then(res => res.json())
