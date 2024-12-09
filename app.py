@@ -9,7 +9,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-from transcribe import transcribe_audio, extract_audio_from_video
+from transcribe import transcribe_audio, extract_audio_from_video, load_whisper_model
 from recorder import AudioRecorder
 from summarize_transcription import summarize_transcription
 from todo_tasks import generate_todo_tasks
@@ -57,6 +57,9 @@ def get_latest_transcription():
 
 # Instance de l'enregistreur audio
 recorder = AudioRecorder(output_path=os.path.join(UPLOAD_FOLDER, 'live_record.wav'))
+
+# Charger le modèle Whisper au démarrage
+whisper_model = load_whisper_model()
 
 @app.route('/')
 def index():
