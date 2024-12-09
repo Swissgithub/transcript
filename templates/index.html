@@ -42,6 +42,10 @@
             margin-bottom: 15px;
         }
 
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
         .title {
             font-size: 1.4em;
             margin-bottom: 10px;
@@ -108,13 +112,11 @@
     <div class="container">
         <h1>Audio Transcription Assistant</h1>
 
-        <!-- Server Connection Status -->
-        <div class="section" id="connection-status">
+        <div id="connection-status" class="section">
             <span class="status-dot disconnected" id="status-dot"></span>
             <span id="status-text">Checking server connection...</span>
         </div>
 
-        <!-- File Upload Section -->
         <div class="section">
             <div class="title">Upload File</div>
             <form id="uploadForm" onsubmit="handleUpload(event)">
@@ -125,13 +127,18 @@
             <div id="uploadMessage"></div>
         </div>
 
-        <!-- Transcription Content -->
+        <div class="section">
+            <div class="title">Live Recording</div>
+            <button id="recordButton" class="btn btn-success" onclick="startRecording()">Start Recording</button>
+            <button id="stopButton" class="btn btn-danger hidden" onclick="stopRecording()">Stop Recording</button>
+            <div id="message"></div>
+        </div>
+
         <div class="section hidden" id="generated-content-section">
             <div class="title">Generated File</div>
             <div id="generatedFileContent">The transcription will appear here.</div>
         </div>
 
-        <!-- Email Sending Section -->
         <div class="section hidden" id="email-section">
             <div class="title">Send by Email</div>
             <input id="emailInput" class="form-control" type="email" placeholder="Enter email address">
@@ -146,7 +153,7 @@
             const uploadButton = document.getElementById('uploadButton');
             const loadingIcon = document.getElementById('loading-icon');
             const uploadMessage = document.getElementById('uploadMessage');
-            const generatedContentSection = document.getElementById('generated-content-section');
+            const generatedContent = document.getElementById('generated-content-section');
             const emailSection = document.getElementById('email-section');
 
             uploadButton.disabled = true;
@@ -158,12 +165,12 @@
             })
             .then(res => res.json())
             .then(data => {
-                uploadButton.disabled = false;
                 loadingIcon.classList.add('hidden');
+                uploadButton.disabled = false;
                 if (data.transcription) {
                     uploadMessage.textContent = "Transcription completed.";
                     document.getElementById('generatedFileContent').textContent = data.transcription;
-                    generatedContentSection.classList.remove('hidden');
+                    generatedContent.classList.remove('hidden');
                     emailSection.classList.remove('hidden');
                 } else {
                     uploadMessage.textContent = "Error during transcription.";
@@ -174,6 +181,18 @@
                 uploadButton.disabled = false;
                 loadingIcon.classList.add('hidden');
             });
+        }
+
+        function startRecording() {
+            document.getElementById('recordButton').classList.add('hidden');
+            document.getElementById('stopButton').classList.remove('hidden');
+            document.getElementById('message').textContent = "Recording started...";
+        }
+
+        function stopRecording() {
+            document.getElementById('recordButton').classList.remove('hidden');
+            document.getElementById('stopButton').classList.add('hidden');
+            document.getElementById('message').textContent = "Recording stopped. Processing transcription...";
         }
 
         function sendEmail() {
@@ -194,7 +213,7 @@
             .catch(() => { emailMessage.textContent = "Failed to send email."; });
         }
 
-        function updateConnectionStatus() {
+        window.addEventListener('load', () => {
             fetch('/check_internet')
                 .then(res => res.json())
                 .then(data => {
@@ -214,9 +233,7 @@
                     statusDot.classList.replace('connected', 'disconnected');
                     statusText.textContent = "Error checking connection.";
                 });
-        }
-
-        window.addEventListener('load', updateConnectionStatus);
+        });
     </script>
 </body>
 </html>
