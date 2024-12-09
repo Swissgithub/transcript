@@ -1,6 +1,7 @@
 import pyaudio
 import wave
 import threading
+import logging
 
 class AudioRecorder:
     def __init__(self, output_path, chunk=1024, format=pyaudio.paInt16, channels=1, rate=16000):
@@ -22,16 +23,21 @@ class AudioRecorder:
             self.thread.start()
 
     def record(self):
-        stream = self.p.open(format=self.format,
-                             channels=self.channels,
-                             rate=self.rate,
-                             input=True,
-                             frames_per_buffer=self.chunk)
-        while self.is_recording:
-            data = stream.read(self.chunk, exception_on_overflow=False)
-            self.frames.append(data)
-        stream.stop_stream()
-        stream.close()
+        try:
+            stream = self.p.open(format=self.format,
+                                 channels=self.channels,
+                                 rate=self.rate,
+                                 input=True,
+                                 frames_per_buffer=self.chunk)
+            logging.info("Audio stream opened successfully.")
+            while self.is_recording:
+                data = stream.read(self.chunk, exception_on_overflow=False)
+                self.frames.append(data)
+            stream.stop_stream()
+            stream.close()
+            logging.info("Audio stream closed successfully.")
+        except Exception as e:
+            logging.error(f"Failed to open audio stream: {e}")
 
     def stop_recording(self):
         if self.is_recording:
