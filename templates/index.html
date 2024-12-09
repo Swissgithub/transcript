@@ -175,8 +175,69 @@
     </div>
 
     <script>
-        // JavaScript logic remains unchanged
-        // Functions handleUpload, startRecording, stopRecording, sendEmail, updateServerConnectionStatus as per your original script
+        function handleUpload(event) {
+            event.preventDefault();
+            const uploadButton = document.getElementById('uploadButton');
+            const loadingIcon = document.getElementById('loading-icon');
+            const uploadMessage = document.getElementById('uploadMessage');
+            uploadButton.disabled = true;
+            loadingIcon.style.display = 'inline-block';
+
+            const formData = new FormData(event.target);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                uploadButton.disabled = false;
+                loadingIcon.style.display = 'none';
+                if (data.transcription) {
+                    uploadMessage.textContent = "Transcription completed.";
+                    document.getElementById('fileTranscription').textContent = data.transcription;
+                } else {
+                    uploadMessage.textContent = "Error during transcription.";
+                }
+            })
+            .catch(() => {
+                uploadButton.disabled = false;
+                loadingIcon.style.display = 'none';
+                uploadMessage.textContent = "Error during upload.";
+            });
+        }
+
+        function updateServerConnectionStatus() {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+
+            fetch('/check_internet')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.internet_access) {
+                        statusDot.classList.remove('disconnected');
+                        statusDot.classList.add('connected');
+                        statusText.textContent = "Server connected to internet";
+                    } else {
+                        statusDot.classList.remove('connected');
+                        statusDot.classList.add('disconnected');
+                        statusText.textContent = "Server not connected to internet";
+                    }
+                })
+                .catch(error => {
+                    statusDot.classList.remove('connected');
+                    statusDot.classList.add('disconnected');
+                    statusText.textContent = "Error checking server connection";
+                    console.error(error);
+                });
+        }
+
+        window.addEventListener('load', updateServerConnectionStatus);
     </script>
 </body>
 </html>
