@@ -75,6 +75,17 @@
         .btn-danger { background: var(--danger-color); }
         .btn-danger:hover { background: #c82333; }
 
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .connected { background: var(--secondary-color); }
+        .disconnected { background: var(--danger-color); }
+
         .hidden { display: none; }
 
         .spinner {
@@ -97,6 +108,13 @@
     <div class="container">
         <h1>Audio Transcription Assistant</h1>
 
+        <!-- Server Connection Status -->
+        <div class="section" id="connection-status">
+            <span class="status-dot disconnected" id="status-dot"></span>
+            <span id="status-text">Checking server connection...</span>
+        </div>
+
+        <!-- File Upload Section -->
         <div class="section">
             <div class="title">Upload File</div>
             <form id="uploadForm" onsubmit="handleUpload(event)">
@@ -107,11 +125,13 @@
             <div id="uploadMessage"></div>
         </div>
 
+        <!-- Transcription Content -->
         <div class="section hidden" id="generated-content-section">
             <div class="title">Generated File</div>
             <div id="generatedFileContent">The transcription will appear here.</div>
         </div>
 
+        <!-- Email Sending Section -->
         <div class="section hidden" id="email-section">
             <div class="title">Send by Email</div>
             <input id="emailInput" class="form-control" type="email" placeholder="Enter email address">
@@ -126,7 +146,7 @@
             const uploadButton = document.getElementById('uploadButton');
             const loadingIcon = document.getElementById('loading-icon');
             const uploadMessage = document.getElementById('uploadMessage');
-            const generatedContent = document.getElementById('generated-content-section');
+            const generatedContentSection = document.getElementById('generated-content-section');
             const emailSection = document.getElementById('email-section');
 
             uploadButton.disabled = true;
@@ -143,7 +163,7 @@
                 if (data.transcription) {
                     uploadMessage.textContent = "Transcription completed.";
                     document.getElementById('generatedFileContent').textContent = data.transcription;
-                    generatedContent.classList.remove('hidden');
+                    generatedContentSection.classList.remove('hidden');
                     emailSection.classList.remove('hidden');
                 } else {
                     uploadMessage.textContent = "Error during transcription.";
@@ -173,6 +193,30 @@
             .then(data => { emailMessage.textContent = data.message; })
             .catch(() => { emailMessage.textContent = "Failed to send email."; });
         }
+
+        function updateConnectionStatus() {
+            fetch('/check_internet')
+                .then(res => res.json())
+                .then(data => {
+                    const statusDot = document.getElementById('status-dot');
+                    const statusText = document.getElementById('status-text');
+                    if (data.internet_access) {
+                        statusDot.classList.replace('disconnected', 'connected');
+                        statusText.textContent = "Server connected.";
+                    } else {
+                        statusDot.classList.replace('connected', 'disconnected');
+                        statusText.textContent = "No internet connection.";
+                    }
+                })
+                .catch(() => {
+                    const statusDot = document.getElementById('status-dot');
+                    const statusText = document.getElementById('status-text');
+                    statusDot.classList.replace('connected', 'disconnected');
+                    statusText.textContent = "Error checking connection.";
+                });
+        }
+
+        window.addEventListener('load', updateConnectionStatus);
     </script>
 </body>
 </html>
