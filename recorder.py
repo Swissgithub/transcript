@@ -17,10 +17,23 @@ class AudioRecorder:
 
     def start_recording(self):
         if not self.is_recording:
-            self.is_recording = True
-            self.frames = []
-            self.thread = threading.Thread(target=self.record)
-            self.thread.start()
+            try:
+                # Tentative d'ouverture du flux audio
+                stream = self.p.open(format=self.format,
+                                     channels=self.channels,
+                                     rate=self.rate,
+                                     input=True,
+                                     frames_per_buffer=self.chunk)
+                stream.close()  # Fermer immédiatement après vérification
+                self.is_recording = True
+                self.frames = []
+                self.thread = threading.Thread(target=self.record)
+                self.thread.start()
+                logging.info("Recording started successfully.")
+            except Exception as e:
+                logging.error(f"Failed to start recording: {e}")
+                return False
+        return True
 
     def record(self):
         try:
