@@ -106,6 +106,10 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        #generatedFileContent {
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+        }
     </style>
 </head>
 <body>
@@ -158,6 +162,7 @@
 
             uploadButton.disabled = true;
             loadingIcon.classList.remove('hidden');
+            uploadMessage.textContent = "Transcription en cours...";
 
             fetch('/upload', {
                 method: 'POST',
@@ -168,16 +173,16 @@
                 loadingIcon.classList.add('hidden');
                 uploadButton.disabled = false;
                 if (data.transcription) {
-                    uploadMessage.textContent = "Transcription completed.";
+                    uploadMessage.textContent = "Transcription terminée.";
                     document.getElementById('generatedFileContent').textContent = data.transcription;
                     generatedContent.classList.remove('hidden');
                     emailSection.classList.remove('hidden');
                 } else {
-                    uploadMessage.textContent = "Error during transcription.";
+                    uploadMessage.textContent = "Erreur lors de la transcription.";
                 }
             })
             .catch(() => {
-                uploadMessage.textContent = "Error during upload.";
+                uploadMessage.textContent = "Erreur lors de l'upload.";
                 uploadButton.disabled = false;
                 loadingIcon.classList.add('hidden');
             });
@@ -214,6 +219,9 @@
         }
 
         window.addEventListener('load', () => {
+            const loadingIcon = document.getElementById('loading-icon');
+            loadingIcon.classList.add('hidden'); // Ensure the loading icon is hidden on page load
+
             fetch('/check_internet')
                 .then(res => res.json())
                 .then(data => {
