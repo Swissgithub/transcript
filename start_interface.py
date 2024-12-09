@@ -1,6 +1,7 @@
 import tkinter as tk
 import socket
 import subprocess
+import requests
 
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -16,13 +17,26 @@ def get_ip_address():
     return IP
 
 def start_recording():
-    # Commande pour démarrer l'enregistrement via l'application transcript
-    subprocess.Popen(['python3', 'app.py'])
+    # Envoie une requête POST pour démarrer l'enregistrement via l'application Flask
+    try:
+        response = requests.post('http://localhost:5000/start_recording')
+        if response.json().get('status') == 'recording_started':
+            print("Recording started.")
+        else:
+            print("Already recording.")
+    except Exception as e:
+        print(f"Failed to start recording: {e}")
 
 def stop_recording():
-    # Commande pour arrêter l'enregistrement
-    # Cela peut nécessiter une implémentation spécifique pour arrêter le processus
-    pass
+    # Envoie une requête POST pour arrêter l'enregistrement via l'application Flask
+    try:
+        response = requests.post('http://localhost:5000/stop_recording')
+        if response.json().get('transcription'):
+            print("Recording stopped. Transcription available.")
+        else:
+            print("No recording found.")
+    except Exception as e:
+        print(f"Failed to stop recording: {e}")
 
 def exit_app():
     app.quit()
