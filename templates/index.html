@@ -220,6 +220,7 @@
                     document.getElementById('message').textContent = "Recording stopped. Processing transcription...";
                     document.getElementById('generatedFileContent').textContent = data.transcription;
                     document.getElementById('generated-content-section').classList.remove('hidden');
+                    document.getElementById('email-section').classList.remove('hidden'); // Show email section after recording
                 } else {
                     document.getElementById('message').textContent = "No recording found.";
                 }
