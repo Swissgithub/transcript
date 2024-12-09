@@ -42,10 +42,6 @@
             margin-bottom: 15px;
         }
 
-        .section:last-child {
-            margin-bottom: 0;
-        }
-
         .title {
             font-size: 1.4em;
             margin-bottom: 10px;
@@ -79,17 +75,6 @@
         .btn-danger { background: var(--danger-color); }
         .btn-danger:hover { background: #c82333; }
 
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        .connected { background: var(--secondary-color); }
-        .disconnected { background: var(--danger-color); }
-
         .hidden { display: none; }
 
         .spinner {
@@ -112,11 +97,6 @@
     <div class="container">
         <h1>Audio Transcription Assistant</h1>
 
-        <div id="connection-status" class="section">
-            <span class="status-dot disconnected" id="status-dot"></span>
-            <span id="status-text">Checking server connection...</span>
-        </div>
-
         <div class="section">
             <div class="title">Upload File</div>
             <form id="uploadForm" onsubmit="handleUpload(event)">
@@ -125,13 +105,6 @@
                 <span id="loading-icon" class="spinner hidden"></span>
             </form>
             <div id="uploadMessage"></div>
-        </div>
-
-        <div class="section">
-            <div class="title">Live Recording</div>
-            <button id="recordButton" class="btn btn-success" onclick="startRecording()">Start Recording</button>
-            <button id="stopButton" class="btn btn-danger hidden" onclick="stopRecording()">Stop Recording</button>
-            <div id="message"></div>
         </div>
 
         <div class="section hidden" id="generated-content-section">
@@ -165,8 +138,8 @@
             })
             .then(res => res.json())
             .then(data => {
-                loadingIcon.classList.add('hidden');
                 uploadButton.disabled = false;
+                loadingIcon.classList.add('hidden');
                 if (data.transcription) {
                     uploadMessage.textContent = "Transcription completed.";
                     document.getElementById('generatedFileContent').textContent = data.transcription;
@@ -181,18 +154,6 @@
                 uploadButton.disabled = false;
                 loadingIcon.classList.add('hidden');
             });
-        }
-
-        function startRecording() {
-            document.getElementById('recordButton').classList.add('hidden');
-            document.getElementById('stopButton').classList.remove('hidden');
-            document.getElementById('message').textContent = "Recording started...";
-        }
-
-        function stopRecording() {
-            document.getElementById('recordButton').classList.remove('hidden');
-            document.getElementById('stopButton').classList.add('hidden');
-            document.getElementById('message').textContent = "Recording stopped. Processing transcription...";
         }
 
         function sendEmail() {
@@ -212,28 +173,6 @@
             .then(data => { emailMessage.textContent = data.message; })
             .catch(() => { emailMessage.textContent = "Failed to send email."; });
         }
-
-        window.addEventListener('load', () => {
-            fetch('/check_internet')
-                .then(res => res.json())
-                .then(data => {
-                    const statusDot = document.getElementById('status-dot');
-                    const statusText = document.getElementById('status-text');
-                    if (data.internet_access) {
-                        statusDot.classList.replace('disconnected', 'connected');
-                        statusText.textContent = "Server connected.";
-                    } else {
-                        statusDot.classList.replace('connected', 'disconnected');
-                        statusText.textContent = "No internet connection.";
-                    }
-                })
-                .catch(() => {
-                    const statusDot = document.getElementById('status-dot');
-                    const statusText = document.getElementById('status-text');
-                    statusDot.classList.replace('connected', 'disconnected');
-                    statusText.textContent = "Error checking connection.";
-                });
-        });
     </script>
 </body>
 </html>
