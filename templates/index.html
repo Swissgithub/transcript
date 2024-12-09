@@ -114,6 +114,10 @@
             white-space: pre-wrap;
         }
 
+        .hidden {
+            display: none;
+        }
+
         .spinner {
             display: inline-block;
             width: 20px;
@@ -144,33 +148,25 @@
             <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" onsubmit="handleUpload(event)">
                 <input type="file" class="form-control" name="file" accept=".wav,.mp3,.mp4,.mov,.avi" required>
                 <button id="uploadButton" type="submit" class="btn btn-primary">Transcribe</button>
-                <span id="loading-icon" class="spinner" style="display:none;"></span>
+                <span id="loading-icon" class="spinner hidden"></span>
             </form>
             <div id="uploadMessage"></div>
-            <div id="fileTranscription" style="display:none;"></div>
         </div>
 
-        <div class="section">
-            <h2 class="card-title">Record live audio</h2>
-            <button id="recordButton" class="btn btn-success" onclick="startRecording()">Start recording</button>
-            <button id="stopButton" class="btn btn-danger" disabled onclick="stopRecording()">Stop recording</button>
-            <div id="message"></div>
-        </div>
-
-        <div class="section">
+        <div class="section hidden" id="generated-content-section">
             <h2 class="card-title">Generated file content</h2>
             <div id="generatedFileContent">The content of the file will appear here.</div>
         </div>
 
-        <div class="section">
-            <button id="newTranscriptionButton" class="btn btn-secondary" onclick="location.reload()">New transcription</button>
-        </div>
-
-        <div class="section">
+        <div class="section hidden" id="email-section">
             <h2 class="card-title">Send Transcription via Email</h2>
             <input id="emailInput" type="email" class="form-control" placeholder="Enter email address" required>
             <button id="sendEmailButton" class="btn btn-primary" onclick="sendEmail()">Send Email</button>
             <div id="emailMessage"></div>
+        </div>
+
+        <div class="section">
+            <button id="newTranscriptionButton" class="btn btn-secondary" onclick="location.reload()">New transcription</button>
         </div>
     </div>
 
@@ -180,8 +176,11 @@
             const uploadButton = document.getElementById('uploadButton');
             const loadingIcon = document.getElementById('loading-icon');
             const uploadMessage = document.getElementById('uploadMessage');
+            const generatedContentSection = document.getElementById('generated-content-section');
+            const emailSection = document.getElementById('email-section');
+
             uploadButton.disabled = true;
-            loadingIcon.style.display = 'inline-block';
+            loadingIcon.classList.remove('hidden');
 
             const formData = new FormData(event.target);
 
@@ -192,52 +191,49 @@
             .then(response => response.json())
             .then(data => {
                 uploadButton.disabled = false;
-                loadingIcon.style.display = 'none';
+                loadingIcon.classList.add('hidden');
+
                 if (data.transcription) {
                     uploadMessage.textContent = "Transcription completed.";
-                    document.getElementById('fileTranscription').textContent = data.transcription;
+                    document.getElementById('generatedFileContent').textContent = data.transcription;
+
+                    // Show the hidden sections
+                    generatedContentSection.classList.remove('hidden');
+                    emailSection.classList.remove('hidden');
                 } else {
                     uploadMessage.textContent = "Error during transcription.";
                 }
             })
             .catch(() => {
                 uploadButton.disabled = false;
-                loadingIcon.style.display = 'none';
+                loadingIcon.classList.add('hidden');
                 uploadMessage.textContent = "Error during upload.";
             });
         }
 
-        function updateServerConnectionStatus() {
-            const statusDot = document.getElementById('status-dot');
-            const statusText = document.getElementById('status-text');
+        function sendEmail() {
+            const emailInput = document.getElementById('emailInput');
+            const emailMessage = document.getElementById('emailMessage');
+            const email = emailInput.value;
 
-            fetch('/check_internet')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.internet_access) {
-                        statusDot.classList.remove('disconnected');
-                        statusDot.classList.add('connected');
-                        statusText.textContent = "Server connected to internet";
-                    } else {
-                        statusDot.classList.remove('connected');
-                        statusDot.classList.add('disconnected');
-                        statusText.textContent = "Server not connected to internet";
-                    }
-                })
-                .catch(error => {
-                    statusDot.classList.remove('connected');
-                    statusDot.classList.add('disconnected');
-                    statusText.textContent = "Error checking server connection";
-                    console.error(error);
-                });
+            if (!email) {
+                emailMessage.textContent = "Please enter a valid email address.";
+                return;
+            }
+
+            fetch('/send_email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                emailMessage.textContent = data.message;
+            })
+            .catch(() => {
+                emailMessage.textContent = "Error sending email.";
+            });
         }
-
-        window.addEventListener('load', updateServerConnectionStatus);
     </script>
 </body>
 </html>
