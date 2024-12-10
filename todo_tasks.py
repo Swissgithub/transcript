@@ -32,7 +32,7 @@ def generate_tasks_with_llama(transcription_text):
     url = "http://localhost:11434/api/generate"
     payload = {
         "model": "tinyllama",
-        "prompt": f"In the following text, can you identify any tasks or next step that need to be performed as mentioned? If so, please provide a brief list; if not, simply state, very briefly, that there are no tasks to be performed. Text : {transcription_text}",
+        "prompt": f"Analyze the following text, which is a conversation between two people. Your task is to identify and extract only the explicitly mentioned tasks. Do not infer or imagine any tasks beyond what is stated. Provide the identified tasks as bullet points with clear details if available. Text: {transcription_text}",
         "stream": False
     }
     try:
