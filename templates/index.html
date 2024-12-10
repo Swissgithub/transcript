@@ -136,6 +136,7 @@
             <div class="title">Live Recording</div>
             <button id="recordButton" class="btn btn-success" onclick="startRecording()">Start Recording</button>
             <button id="stopButton" class="btn btn-danger hidden" onclick="stopRecording()">Stop Recording</button>
+            <span id="stop-loading-icon" class="spinner hidden"></span>
             <div id="message"></div>
         </div>
 
@@ -214,11 +215,18 @@
         }
 
         function stopRecording() {
+            const stopButton = document.getElementById('stopButton');
+            const stopLoadingIcon = document.getElementById('stop-loading-icon');
+            stopButton.disabled = true;
+            stopLoadingIcon.classList.remove('hidden');
+
             fetch('/stop_recording', {
                 method: 'POST'
             })
             .then(res => res.json())
             .then(data => {
+                stopLoadingIcon.classList.add('hidden');
+                stopButton.disabled = false;
                 if (data.transcription) {
                     document.getElementById('recordButton').classList.remove('hidden');
                     document.getElementById('stopButton').classList.add('hidden');
@@ -231,6 +239,8 @@
                 }
             })
             .catch(() => {
+                stopLoadingIcon.classList.add('hidden');
+                stopButton.disabled = false;
                 document.getElementById('message').textContent = "Failed to stop recording.";
             });
         }
