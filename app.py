@@ -194,25 +194,27 @@ def stop_recording():
             transcription = transcribe_audio(recorder.output_path)
             # Supprimer le fichier enregistré après transcription (optionnel)
             os.remove(recorder.output_path)
+            
+            # Sauvegarder la transcription dans un fichier
+            transcription_file = save_transcription(transcription)
+            
+            # Générer le résumé
+            summary = summarize_transcription(transcription_file)
+            
+            # Generate todo tasks
+            generate_todo_tasks(transcription_file)
+            
+            # Log transcription and summary
+            app.logger.debug(f"Transcription: {transcription}")
+            app.logger.debug(f"Summary: {summary}")
+            
+            latest_transcription = get_latest_transcription()
+            return jsonify({"transcription": latest_transcription, "summary": summary})
         except Exception as e:
-            transcription = f"Erreur lors de la transcription : {e}"
-        
-        # Sauvegarder la transcription dans un fichier
-        transcription_file = save_transcription(transcription)
-        
-        # Générer le résumé
-        summary = summarize_transcription(transcription_file)
-        
-        # Generate todo tasks
-        generate_todo_tasks(transcription_file)
-        
-        # Log transcription and summary
-        app.logger.debug(f"Transcription: {transcription}")
-        app.logger.debug(f"Summary: {summary}")
-        
-        latest_transcription = get_latest_transcription()
-        return jsonify({"transcription": latest_transcription, "summary": summary})
+            app.logger.error(f"Erreur lors de la transcription : {e}")
+            return jsonify({"error": f"Erreur lors de la transcription : {e}"})
     else:
+        app.logger.debug("Aucun enregistrement en cours lors de l'appel à stop_recording.")
         return jsonify({"status": "no_recording"})
 
 @app.route('/uploads/<filename>')
